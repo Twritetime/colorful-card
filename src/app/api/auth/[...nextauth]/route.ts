@@ -1,11 +1,9 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import { compare } from "@/lib/auth";
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
