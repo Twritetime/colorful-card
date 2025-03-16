@@ -1,115 +1,54 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Language, useLanguage } from '@/contexts/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Check, ChevronsUpDown, Globe } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { usePathname, useRouter } from 'next/navigation';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
-const languages = [
-  { value: 'en', label: 'English' },
-  { value: 'zh', label: '中文' },
-];
+import { useState } from 'react';
+import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 export default function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage();
-  const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
+  const { language, setLanguage, t } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
 
-  // 在客户端渲染后设置mounted为true
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // 如果尚未挂载，则显示一个空的按钮，避免hydration不匹配错误
-  if (!mounted) {
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        className="w-9 px-0 opacity-0"
-        aria-hidden="true"
-      >
-        <Globe className="h-4 w-4" />
-      </Button>
-    );
-  }
-
-  // 处理语言切换
-  const handleLanguageChange = (value: Language) => {
-    setLanguage(value);
-    setOpen(false);
-    console.log(`[LanguageSwitcher] Language changed to: ${value}`);
-    // 通过强制刷新来确保整个应用程序都使用新的语言
-    router.refresh();
+  const handleSetLanguage = (lang: Language) => {
+    setLanguage(lang);
+    setIsOpen(false);
   };
 
-  // 查找当前语言的标签
-  const currentLanguageLabel = languages.find(lang => lang.value === language)?.label || 'Language';
-
   return (
-    <div className="flex items-center">
-      <Popover open={open} onOpenChange={setOpen}>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-9 px-0"
-                  aria-label="Select language"
-                >
-                  <Globe className="h-4 w-4" />
-                  <span className="sr-only">切换语言</span>
-                </Button>
-              </PopoverTrigger>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{language === 'en' ? 'Change language' : '切换语言'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandInput placeholder={language === 'en' ? 'Search language...' : '搜索语言...'} />
-            <CommandEmpty>{language === 'en' ? 'No language found.' : '未找到语言。'}</CommandEmpty>
-            <CommandGroup>
-              {languages.map((lang) => (
-                <CommandItem
-                  key={lang.value}
-                  onSelect={() => handleLanguageChange(lang.value as Language)}
-                  className="cursor-pointer"
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      language === lang.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {lang.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
+    <div className="relative">
+      <button
+        className="flex items-center space-x-1 text-sm focus:outline-none"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+      >
+        <GlobeAltIcon className="h-5 w-5" />
+        <span>{t('nav.language')}</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+          <div className="py-1" role="menu" aria-orientation="vertical">
+            <button
+              className={`block px-4 py-2 text-sm w-full text-left ${
+                language === 'zh' ? 'bg-primary/10 text-primary' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => handleSetLanguage('zh')}
+              role="menuitem"
+            >
+              中文
+            </button>
+            <button
+              className={`block px-4 py-2 text-sm w-full text-left ${
+                language === 'en' ? 'bg-primary/10 text-primary' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => handleSetLanguage('en')}
+              role="menuitem"
+            >
+              English
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
