@@ -14,7 +14,7 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // 从productService获取产品数据和类目数据
   useEffect(() => {
@@ -154,15 +154,20 @@ export default function ProductsPage() {
 
       {/* 询价区域 */}
       <div className="mt-16 bg-muted rounded-lg p-8 text-center">
-        <h2 className="text-2xl font-bold mb-4">寻找定制解决方案？</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          {language === 'en' ? "Looking for a Custom Solution?" : "寻找定制解决方案？"}
+        </h2>
         <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
-          我们提供完全定制的设计和生产服务，满足您的独特需求。联系我们获取免费报价。
+          {language === 'en' 
+            ? "We offer fully customized design and production services to meet your unique needs. Contact us for a free quote."
+            : "我们提供完全定制的设计和生产服务，满足您的独特需求。联系我们获取免费报价。"
+          }
         </p>
         <Link
           href="/contact"
           className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none"
         >
-          获取免费报价
+          {language === 'en' ? "Get a Free Quote" : "获取免费报价"}
         </Link>
       </div>
     </div>

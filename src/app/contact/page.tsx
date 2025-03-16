@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { EnvelopeIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ContactPage() {
+  const { language } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -48,7 +50,7 @@ export default function ContactPage() {
       
       setSubmitSuccess(true);
     } catch (err) {
-      setSubmitError("提交表单时出错，请稍后再试。");
+      setSubmitError(language === 'en' ? "An error occurred when submitting the form. Please try again later." : "提交表单时出错，请稍后再试。");
       console.error("表单提交错误:", err);
     } finally {
       setIsSubmitting(false);
@@ -58,9 +60,14 @@ export default function ContactPage() {
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">联系我们</h1>
+        <h1 className="text-4xl font-bold mb-4">
+          {language === 'en' ? "Contact Us" : "联系我们"}
+        </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          无论您有任何问题、需要报价或希望了解更多关于我们产品的信息，我们都很乐意为您提供帮助。
+          {language === 'en'
+            ? "Whether you have questions, need a quote, or want to learn more about our products, we're here to help."
+            : "无论您有任何问题、需要报价或希望了解更多关于我们产品的信息，我们都很乐意为您提供帮助。"
+          }
         </p>
       </div>
       
@@ -68,7 +75,9 @@ export default function ContactPage() {
         {/* 联系信息 */}
         <div className="lg:col-span-1">
           <div className="bg-card rounded-lg border border-border p-6">
-            <h2 className="text-xl font-bold mb-6">联系方式</h2>
+            <h2 className="text-xl font-bold mb-6">
+              {language === 'en' ? "Contact Information" : "联系方式"}
+            </h2>
             
             <div className="space-y-6">
               <div className="flex items-start">
@@ -76,12 +85,14 @@ export default function ContactPage() {
                   <PhoneIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium">电话</h3>
+                  <h3 className="text-sm font-medium">
+                    {language === 'en' ? "Phone" : "电话"}
+                  </h3>
                   <p className="mt-1 text-muted-foreground">
                     +86 755-1234-5678
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    周一至周五: 9:00 - 18:00
+                    {language === 'en' ? "Mon-Fri: 9:00 AM - 6:00 PM" : "周一至周五: 9:00 - 18:00"}
                   </p>
                 </div>
               </div>
@@ -91,12 +102,14 @@ export default function ContactPage() {
                   <EnvelopeIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium">电子邮件</h3>
+                  <h3 className="text-sm font-medium">
+                    {language === 'en' ? "Email" : "电子邮件"}
+                  </h3>
                   <p className="mt-1 text-muted-foreground">
                     info@colorfulcard.com
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    业务合作: sales@colorfulcard.com
+                    {language === 'en' ? "Business Cooperation: sales@colorfulcard.com" : "业务合作: sales@colorfulcard.com"}
                   </p>
                 </div>
               </div>
@@ -106,19 +119,23 @@ export default function ContactPage() {
                   <MapPinIcon className="h-5 w-5 text-primary" />
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-sm font-medium">地址</h3>
+                  <h3 className="text-sm font-medium">
+                    {language === 'en' ? "Address" : "地址"}
+                  </h3>
                   <p className="mt-1 text-muted-foreground">
-                    广东省深圳市宝安区西乡街道
+                    {language === 'en' ? "Xixiang Street, Bao'an District" : "广东省深圳市宝安区西乡街道"}
                   </p>
                   <p className="mt-1 text-muted-foreground">
-                    创业路88号彩卡大厦15楼
+                    {language === 'en' ? "Colorful Card Building, 15th Floor, No.88 Chuangye Road, Shenzhen, China" : "创业路88号彩卡大厦15楼"}
                   </p>
                 </div>
               </div>
             </div>
             
             <div className="mt-8">
-              <h3 className="text-sm font-medium mb-3">社交媒体</h3>
+              <h3 className="text-sm font-medium mb-3">
+                {language === 'en' ? "Social Media" : "社交媒体"}
+              </h3>
               <div className="flex space-x-4">
                 <a href="#" className="text-muted-foreground hover:text-primary">
                   <span className="sr-only">Facebook</span>
@@ -145,7 +162,9 @@ export default function ContactPage() {
           {/* 地图 */}
           <div className="mt-8 h-64 md:h-80 bg-muted rounded-lg border border-border overflow-hidden">
             <div className="h-full w-full bg-muted flex items-center justify-center">
-              <p className="text-muted-foreground">地图加载中...</p>
+              <p className="text-muted-foreground">
+                {language === 'en' ? "Loading map..." : "地图加载中..."}
+              </p>
               {/* 实际应用中，这里可以嵌入Google Maps或百度地图 */}
             </div>
           </div>
@@ -154,7 +173,9 @@ export default function ContactPage() {
         {/* 联系表单 */}
         <div className="lg:col-span-2">
           <div className="bg-card rounded-lg border border-border p-6">
-            <h2 className="text-xl font-bold mb-6">发送询价</h2>
+            <h2 className="text-xl font-bold mb-6">
+              {language === 'en' ? "Send an Inquiry" : "发送询价"}
+            </h2>
             
             {submitSuccess ? (
               <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
@@ -165,9 +186,16 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-green-800">提交成功</h3>
+                    <h3 className="text-sm font-medium text-green-800">
+                      {language === 'en' ? "Submission Successful" : "提交成功"}
+                    </h3>
                     <div className="mt-2 text-sm text-green-700">
-                      <p>感谢您的询价！我们的团队将尽快与您联系。</p>
+                      <p>
+                        {language === 'en' 
+                          ? "Thank you for your inquiry! Our team will contact you shortly."
+                          : "感谢您的询价！我们的团队将尽快与您联系。"
+                        }
+                      </p>
                     </div>
                     <div className="mt-4">
                       <button
@@ -175,7 +203,7 @@ export default function ContactPage() {
                         onClick={() => setSubmitSuccess(false)}
                         className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                       >
-                        发送新询价
+                        {language === 'en' ? "Send New Inquiry" : "发送新询价"}
                       </button>
                     </div>
                   </div>
@@ -192,7 +220,9 @@ export default function ContactPage() {
                         </svg>
                       </div>
                       <div className="ml-3">
-                        <h3 className="text-sm font-medium text-red-800">提交出错</h3>
+                        <h3 className="text-sm font-medium text-red-800">
+                          {language === 'en' ? "Submission Error" : "提交出错"}
+                        </h3>
                         <div className="mt-2 text-sm text-red-700">
                           <p>{submitError}</p>
                         </div>
@@ -204,7 +234,7 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium">
-                      姓名 <span className="text-red-500">*</span>
+                      {language === 'en' ? "Name" : "姓名"} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -219,7 +249,7 @@ export default function ContactPage() {
                   
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium">
-                      电子邮箱 <span className="text-red-500">*</span>
+                      {language === 'en' ? "Email" : "电子邮箱"} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
@@ -234,7 +264,7 @@ export default function ContactPage() {
                   
                   <div>
                     <label htmlFor="company" className="block text-sm font-medium">
-                      公司名称
+                      {language === 'en' ? "Company Name" : "公司名称"}
                     </label>
                     <input
                       type="text"
@@ -248,7 +278,7 @@ export default function ContactPage() {
                   
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium">
-                      电话号码
+                      {language === 'en' ? "Phone" : "电话"}
                     </label>
                     <input
                       type="tel"
@@ -259,52 +289,73 @@ export default function ContactPage() {
                       className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     />
                   </div>
-                  
-                  <div className="md:col-span-2">
-                    <label htmlFor="product" className="block text-sm font-medium">
-                      感兴趣的产品
-                    </label>
-                    <select
-                      id="product"
-                      name="product"
-                      value={formData.product}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    >
-                      <option value="">请选择产品类型</option>
-                      <option value="商务名片">商务名片</option>
-                      <option value="贺卡">贺卡</option>
-                      <option value="礼品卡">礼品卡</option>
-                      <option value="包装">包装解决方案</option>
-                      <option value="会员卡">会员卡</option>
-                      <option value="定制服务">定制服务</option>
-                    </select>
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <label htmlFor="message" className="block text-sm font-medium">
-                      消息内容 <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={5}
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      placeholder="请描述您的需求或问题，例如：产品规格、数量、交货时间等..."
-                      className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    />
-                  </div>
                 </div>
                 
-                <div className="flex justify-end">
+                <div>
+                  <label htmlFor="product" className="block text-sm font-medium">
+                    {language === 'en' ? "Product Interest" : "感兴趣的产品"}
+                  </label>
+                  <select
+                    id="product"
+                    name="product"
+                    value={formData.product}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
+                    <option value="">
+                      {language === 'en' ? "-- Select a product --" : "-- 选择产品 --"}
+                    </option>
+                    <option value="business-cards">
+                      {language === 'en' ? "Business Cards" : "名片"}
+                    </option>
+                    <option value="greeting-cards">
+                      {language === 'en' ? "Greeting Cards" : "贺卡"}
+                    </option>
+                    <option value="gift-cards">
+                      {language === 'en' ? "Gift Cards" : "礼品卡"}
+                    </option>
+                    <option value="packaging">
+                      {language === 'en' ? "Packaging Solutions" : "包装解决方案"}
+                    </option>
+                    <option value="other">
+                      {language === 'en' ? "Other" : "其他"}
+                    </option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium">
+                    {language === 'en' ? "Message" : "留言"} <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    placeholder={language === 'en' ? "Please describe your requirements..." : "请描述您的需求..."}
+                  ></textarea>
+                </div>
+                
+                <div>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full inline-flex justify-center items-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting ? "提交中..." : "提交询价"}
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {language === 'en' ? "Submitting..." : "提交中..."}
+                      </>
+                    ) : (
+                      language === 'en' ? "Submit Inquiry" : "提交询价"
+                    )}
                   </button>
                 </div>
               </form>
@@ -315,34 +366,56 @@ export default function ContactPage() {
       
       {/* FAQ部分 */}
       <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-8 text-center">常见问题</h2>
+        <h2 className="text-2xl font-bold mb-8 text-center">
+          {language === 'en' ? "Frequently Asked Questions" : "常见问题"}
+        </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-card rounded-lg border border-border p-6">
-            <h3 className="text-lg font-medium mb-3">最小起订量是多少？</h3>
+            <h3 className="text-lg font-medium mb-3">
+              {language === 'en' ? "What is the minimum order quantity?" : "最小起订量是多少？"}
+            </h3>
             <p className="text-muted-foreground">
-              不同产品有不同的最小起订量。一般情况下，商务名片最小订单为100张，贺卡最小订单为50张。详细信息请查看产品页面或直接联系我们。
+              {language === 'en'
+                ? "Different products have different minimum order quantities. Generally, business cards have a minimum order of 100 pieces, and greeting cards have a minimum order of 50 pieces. For detailed information, please check the product page or contact us directly."
+                : "不同产品有不同的最小起订量。一般情况下，商务名片最小订单为100张，贺卡最小订单为50张。详细信息请查看产品页面或直接联系我们。"
+              }
             </p>
           </div>
           
           <div className="bg-card rounded-lg border border-border p-6">
-            <h3 className="text-lg font-medium mb-3">能否提供样品？</h3>
+            <h3 className="text-lg font-medium mb-3">
+              {language === 'en' ? "Can samples be provided?" : "能否提供样品？"}
+            </h3>
             <p className="text-muted-foreground">
-              是的，我们可以在正式订单前提供样品。样品费用将根据产品类型和复杂程度而定，并且在后续大订单中可部分抵扣。
+              {language === 'en'
+                ? "Yes, we can provide samples before formal orders. Sample costs will vary depending on the product type and complexity, and can be partially deducted from subsequent large orders."
+                : "是的，我们可以在正式订单前提供样品。样品费用将根据产品类型和复杂程度而定，并且在后续大订单中可部分抵扣。"
+              }
             </p>
           </div>
           
           <div className="bg-card rounded-lg border border-border p-6">
-            <h3 className="text-lg font-medium mb-3">支持哪些设计文件格式？</h3>
+            <h3 className="text-lg font-medium mb-3">
+              {language === 'en' ? "What design file formats do you support?" : "支持哪些设计文件格式？"}
+            </h3>
             <p className="text-muted-foreground">
-              我们接受AI、PSD、PDF、CDR等格式的设计文件。如果您没有设计文件，我们的设计团队也可以根据您的需求提供设计服务。
+              {language === 'en'
+                ? "We accept design files in AI, PSD, PDF, CDR and other formats. If you don't have design files, our design team can also provide design services based on your requirements."
+                : "我们接受AI、PSD、PDF、CDR等格式的设计文件。如果您没有设计文件，我们的设计团队也可以根据您的需求提供设计服务。"
+              }
             </p>
           </div>
           
           <div className="bg-card rounded-lg border border-border p-6">
-            <h3 className="text-lg font-medium mb-3">大概需要多长时间可以收到产品？</h3>
+            <h3 className="text-lg font-medium mb-3">
+              {language === 'en' ? "How long does it take to receive products?" : "大概需要多长时间可以收到产品？"}
+            </h3>
             <p className="text-muted-foreground">
-              标准订单的生产周期通常为5-10个工作日，具体取决于产品类型和订单数量。加急服务也可提供，但可能需要额外费用。
+              {language === 'en'
+                ? "The production cycle for standard orders is usually 5-10 working days, depending on the product type and order quantity. Rush services are also available, but may require additional fees."
+                : "标准订单的生产周期通常为5-10个工作日，具体取决于产品类型和订单数量。加急服务也可提供，但可能需要额外费用。"
+              }
             </p>
           </div>
         </div>

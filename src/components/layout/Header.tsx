@@ -11,7 +11,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Header() {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { data: session } = useSession();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -28,10 +28,10 @@ export default function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
-            <span className="sr-only">彩卡</span>
+            <span className="sr-only">{language === 'en' ? 'Colorful Card' : '彩卡'}</span>
             <div className="flex items-center">
               <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-white font-bold mr-2">CC</div>
-              <span className="font-bold text-lg text-primary">彩卡</span>
+              <span className="font-bold text-lg text-primary">{language === 'en' ? 'Colorful Card' : '彩卡'}</span>
             </div>
           </Link>
         </div>

@@ -67,6 +67,19 @@ const translations = {
     'user.login': '登录',
     'user.logout': '退出登录',
     'user.profile': '个人资料',
+
+    // 关于页面
+    'about.title': '关于我们',
+    'about.companyProfile': '深圳彩卡公司成立于2010年...',
+    'about.mission': '使命',
+    'about.vision': '愿景',
+    'about.coreValues': '核心价值观',
+    'about.history': '我们的历史',
+    'about.capabilities': '生产能力',
+    'about.team': '核心团队',
+    'about.honors': '荣誉与认证',
+    'about.factoryTour': '预约工厂参观',
+    'about.bookTour': '预约参观',
   },
   en: {
     // Navigation
@@ -118,6 +131,19 @@ const translations = {
     'user.login': 'Login',
     'user.logout': 'Logout',
     'user.profile': 'Profile',
+
+    // About page
+    'about.title': 'About Us',
+    'about.companyProfile': 'Established in 2010, Colorful Card Company...',
+    'about.mission': 'Mission',
+    'about.vision': 'Vision',
+    'about.coreValues': 'Core Values',
+    'about.history': 'Our History',
+    'about.capabilities': 'Production Capabilities',
+    'about.team': 'Core Team',
+    'about.honors': 'Honors & Certifications',
+    'about.factoryTour': 'Book a Factory Tour',
+    'about.bookTour': 'Book a Tour',
   }
 };
 
