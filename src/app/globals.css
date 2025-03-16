@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 导入自定义CSS文件 */
+@import '../styles/custom.css';
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -51,10 +54,11 @@
 
 @layer base {
   * {
-    @apply border-[hsl(var(--border))];
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: Arial, Helvetica, sans-serif;
   }
 }
