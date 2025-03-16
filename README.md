@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Colorful Card - B2B外贸独立站
 
-## Getting Started
+这是一个基于Next.js开发的B2B外贸独立站，为深圳彩卡公司（Shenzhen Colorful Card Co., Ltd.）提供专业的卡片和礼品解决方案展示和销售平台。
 
-First, run the development server:
+## 功能特点
+
+- 响应式设计，适配各种设备
+- 暗色/亮色主题切换
+- 多语言支持
+- 产品展示与分类
+- 在线询价系统
+- 管理后台
+  - 产品管理（增删改查）
+  - 订单管理
+  - 客户管理
+  - 询盘管理
+
+## 技术栈
+
+- **前端框架**: Next.js 14 (App Router)
+- **样式**: Tailwind CSS, DaisyUI
+- **状态管理**: React Hooks
+- **表单处理**: React Hook Form
+- **认证**: NextAuth.js
+- **数据库**: MongoDB (Prisma ORM)
+- **部署**: Vercel
+
+## 本地开发
+
+### 前提条件
+
+- Node.js 18.0.0 或更高版本
+- npm 或 yarn
+- MongoDB 数据库
+
+### 安装步骤
+
+1. 克隆仓库
+
+```bash
+git clone https://github.com/yourusername/colorful-card.git
+cd colorful-card
+```
+
+2. 安装依赖
+
+```bash
+npm install
+# 或
+yarn install
+```
+
+3. 配置环境变量
+
+复制 `.env.example` 文件为 `.env.local` 并填写必要的环境变量：
+
+```
+DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/colorfulcard"
+NEXTAUTH_SECRET="your-nextauth-secret"
+NEXTAUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+```
+
+4. 初始化数据库
+
+```bash
+npx prisma db push
+```
+
+5. 启动开发服务器
 
 ```bash
 npm run dev
-# or
+# 或
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+现在，你可以在浏览器中访问 `http://localhost:3000` 查看网站。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 部署到Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. 在Vercel上创建一个新项目
+2. 导入你的GitHub仓库
+3. 配置环境变量
+4. 点击部署
 
-## Learn More
+## 管理后台使用
 
-To learn more about Next.js, take a look at the following resources:
+管理后台位于 `/dashboard` 路径。首次使用时，你需要创建一个管理员账户：
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. 访问 `/api/setup` 路径（仅在首次设置时可用）
+2. 使用创建的管理员账户登录 `/login`
+3. 登录后即可访问管理后台
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 项目结构
 
-## Deploy on Vercel
+```
+colorful-card/
+├── prisma/              # Prisma数据库模型
+├── public/              # 静态资源
+├── src/
+│   ├── app/             # Next.js应用路由
+│   │   ├── api/         # API路由
+│   │   ├── dashboard/   # 管理后台页面
+│   │   └── ...          # 其他页面
+│   ├── components/      # React组件
+│   │   ├── dashboard/   # 管理后台组件
+│   │   └── layout/      # 布局组件
+│   ├── lib/             # 工具函数
+│   └── types/           # TypeScript类型定义
+├── .env                 # 环境变量
+├── next.config.js       # Next.js配置
+└── tailwind.config.ts   # Tailwind CSS配置
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 许可证
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](LICENSE)
+
+## 联系方式
+
+如有任何问题或建议，请联系：
+
+- 邮箱: contact@example.com
+- 网站: https://colorfulcard.com
