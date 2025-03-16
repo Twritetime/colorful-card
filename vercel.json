@@ -9,15 +9,15 @@
   "env": {
     "DATABASE_URL": "mongodb+srv://lowkeylove77:weeICuwtKe171ua9@colorful-card.ms17h.mongodb.net/colorfulcard?retryWrites=true&w=majority",
     "NEXTAUTH_SECRET": "kWCsXh83297sSVCQQaGv/64RPFA6vyfbmZxqsC9/DIY=",
-    "NEXTAUTH_URL": "https://colorful-card-twritetimes-projects.vercel.app",
-    "PRISMA_CLIENT_ENGINE_TYPE": "dataproxy"
+    "NEXTAUTH_URL": "https://colorful-card-twritetimes-projects.vercel.app"
   },
   "build": {
     "env": {
       "DATABASE_URL": "mongodb+srv://lowkeylove77:weeICuwtKe171ua9@colorful-card.ms17h.mongodb.net/colorfulcard?retryWrites=true&w=majority",
       "NEXTAUTH_SECRET": "kWCsXh83297sSVCQQaGv/64RPFA6vyfbmZxqsC9/DIY=",
-      "NEXTAUTH_URL": "https://colorful-card-twritetimes-projects.vercel.app",
-      "PRISMA_CLIENT_ENGINE_TYPE": "dataproxy"
+      "NEXTAUTH_URL": "https://colorful-card-twritetimes-projects.vercel.app"
     }
-  }
+  },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install"
 } 
