@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { Bars3Icon, ShoppingCartIcon, UserIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, UserIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
 
@@ -62,13 +62,6 @@ export default function Header() {
         
         <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center space-x-4">
           <ThemeToggle />
-          
-          <Link href="/cart" className="text-sm font-semibold leading-6 relative">
-            <ShoppingCartIcon className="h-6 w-6 text-muted-foreground hover:text-primary transition-colors" />
-            <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-              0
-            </span>
-          </Link>
           
           {session ? (
             <Link href="/dashboard" className="flex items-center text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">

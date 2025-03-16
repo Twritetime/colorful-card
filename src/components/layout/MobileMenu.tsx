@@ -2,7 +2,7 @@
 
 import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon, ShoppingCartIcon, UserIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, UserIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Session } from "next-auth";
 import ThemeToggle from "./ThemeToggle";
@@ -77,15 +77,6 @@ export default function MobileMenu({
                     ))}
                   </div>
                   <div className="py-6 space-y-2">
-                    <Link
-                      href="/cart"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="-mx-3 flex items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-foreground hover:bg-muted"
-                    >
-                      <ShoppingCartIcon className="h-6 w-6 mr-2" />
-                      Cart
-                    </Link>
-                    
                     {session ? (
                       <Link
                         href="/dashboard"
