@@ -1,7 +1,93 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+  
+  // 特性数据
+  const features = [
+    {
+      title: "高品质材料",
+      description: "我们只使用最优质的材料，确保每个产品都具有出色的品质和耐用性。",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      title: "定制设计",
+      description: "根据您的品牌标识和特定需求量身定制的专业设计服务。",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+        </svg>
+      ),
+    },
+    {
+      title: "全球配送",
+      description: "无论您身在世界何处，我们都能确保及时可靠的产品交付。",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h2a2 2 0 002-2v-1a2 2 0 012-2h1.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      title: "卓越服务",
+      description: "专业的客户服务团队为您提供从设计到交付的全程支持。",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+  ];
+
+  // 产品类别数据
+  const categories = [
+    {
+      title: "商务名片",
+      description: "专业的企业名片，多种材质和工艺可选",
+      image: "https://images.unsplash.com/photo-1572502007796-bf53841bc530?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnVzaW5lc3MlMjBjYXJkfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60",
+      href: "/products?category=business",
+    },
+    {
+      title: "精美贺卡",
+      description: "各种场合的贺卡和节日卡片",
+      image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdyZWV0aW5nJTIwY2FyZHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60",
+      href: "/products?category=greeting",
+    },
+    {
+      title: "会员卡",
+      description: "耐用的会员卡和忠诚度计划卡",
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWVtYmVyc2hpcCUyMGNhcmR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60",
+      href: "/products?category=gift",
+    },
+  ];
+  
+  // 客户评价数据
+  const testimonials = [
+    {
+      name: "张明",
+      company: "创新科技有限公司",
+      content: "彩卡的商务名片质量超出了我们的预期。印刷精美，材质优良，受到了我们客户的一致好评。",
+    },
+    {
+      name: "李佳",
+      company: "环球礼品公司",
+      content: "我们与彩卡合作多年，他们的产品质量和服务一直保持在最高水平。强烈推荐！",
+    },
+    {
+      name: "王强",
+      company: "星光酒店集团",
+      content: "彩卡为我们设计的会员卡既美观又耐用，帮助我们提升了品牌形象和客户忠诚度。",
+    },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -10,31 +96,31 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
-                高品质卡片与礼品<span className="text-primary">解决方案</span>，服务全球商务
+                {t('home.hero.title')}
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground">
-                彩卡有限公司为全球企业提供高质量定制卡片、包装和礼品解决方案。
+                {t('home.hero.description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  href="/products" 
+                <Link
+                  href="/products"
                   className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none"
                 >
-                  浏览产品
+                  {t('home.hero.browse')}
                 </Link>
-                <Link 
-                  href="/contact" 
+                <Link
+                  href="/contact"
                   className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-primary transition duration-200 bg-transparent border border-primary rounded-lg hover:bg-primary/5 focus:outline-none"
                 >
-                  联系我们
+                  {t('home.hero.contact')}
                 </Link>
               </div>
             </div>
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <div className="aspect-[16/9]">
-                <Image 
-                  src="https://gcore.jsdelivr.net/gh/Twritetime/Images-0@main/blog-writetime/20250308220406915.png" 
-                  alt="彩卡产品展示" 
+                <Image
+                  src="https://gcore.jsdelivr.net/gh/Twritetime/Images-0@main/blog-writetime/20250308220406915.png"
+                  alt="彩卡产品展示"
                   fill
                   className="object-cover"
                   priority
@@ -55,11 +141,11 @@ export default function Home() {
               凭借十多年的经验，我们为全球客户提供卓越品质、具有竞争力的价格和可靠的服务。
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature) => (
-              <div 
-                key={feature.title} 
+              <div
+                key={feature.title}
                 className="bg-card rounded-lg p-6 shadow-md transition-all hover:shadow-lg border"
               >
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-4">
@@ -82,18 +168,18 @@ export default function Home() {
               探索我们广泛的高品质产品系列，专为满足您的特定需求而设计。
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categories.map((category) => (
-              <Link 
-                href={category.href} 
+              <Link
+                href={category.href}
                 key={category.title}
                 className="group relative overflow-hidden rounded-lg shadow-md"
               >
                 <div className="aspect-[4/3] relative">
-                  <Image 
-                    src={category.image} 
-                    alt={category.title} 
+                  <Image
+                    src={category.image}
+                    alt={category.title}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
@@ -106,10 +192,10 @@ export default function Home() {
               </Link>
             ))}
           </div>
-          
+
           <div className="text-center mt-12">
-            <Link 
-              href="/products" 
+            <Link
+              href="/products"
               className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none"
             >
               查看所有产品
@@ -127,18 +213,18 @@ export default function Home() {
               听听来自全球信任我们产品和服务的企业客户的声音。
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.map((testimonial) => (
-              <div 
-                key={testimonial.name} 
+              <div
+                key={testimonial.name}
                 className="bg-card rounded-lg p-6 shadow-md border"
               >
                 <div className="flex items-center mb-4">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <svg 
-                      key={i} 
-                      className="w-5 h-5 text-yellow-500 fill-current" 
+                    <svg
+                      key={i}
+                      className="w-5 h-5 text-yellow-500 fill-current"
                       viewBox="0 0 24 24"
                     >
                       <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
@@ -172,14 +258,14 @@ export default function Home() {
               立即联系我们，讨论您的项目需求并获取定制报价。
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/contact" 
+              <Link
+                href="/contact"
                 className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-primary transition duration-200 bg-white rounded-lg hover:bg-gray-100 focus:outline-none"
               >
                 获取报价
               </Link>
-              <Link 
-                href="/products" 
+              <Link
+                href="/products"
                 className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-transparent border border-white rounded-lg hover:bg-white/10 focus:outline-none"
               >
                 浏览产品
@@ -191,100 +277,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Sample data
-const features = [
-  {
-    title: "定制设计",
-    description: "根据您的品牌标识和特定需求量身定制的专业设计服务。",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-      </svg>
-    ),
-  },
-  {
-    title: "优质材料",
-    description: "高品质材料确保耐用性、美观性，并提供环保选项。",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    ),
-  },
-  {
-    title: "全球配送",
-    description: "可靠的全球配送服务，提供追踪功能和加急选项。",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    title: "质量保证",
-    description: "严格的质量控制，确保每件产品都符合我们的高标准。",
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-];
-
-const categories = [
-  {
-    title: "名片",
-    description: "多种工艺和材质的高级名片",
-    image: "https://images.unsplash.com/photo-1572502007796-bf53841bc530?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    href: "/products",
-  },
-  {
-    title: "礼品卡",
-    description: "为零售和特殊场合定制的精美礼品卡",
-    image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    href: "/products",
-  },
-  {
-    title: "Greeting Cards",
-    description: "Professional greeting cards for corporate communications",
-    image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    href: "/products",
-  },
-  {
-    title: "Packaging Solutions",
-    description: "Custom packaging for products and promotional materials",
-    image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    href: "/products",
-  },
-  {
-    title: "Membership Cards",
-    description: "Durable cards for loyalty programs and memberships",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    href: "/products",
-  },
-  {
-    title: "Custom Printing",
-    description: "Specialized printing services for unique requirements",
-    image: "https://images.unsplash.com/photo-1611327709756-029307e85e34?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    href: "/products",
-  },
-];
-
-const testimonials = [
-  {
-    name: "Sarah Johnson",
-    company: "Global Retail Solutions",
-    content: "The quality of business cards we received from Colorful Card exceeded our expectations. Their attention to detail and customer service are outstanding.",
-  },
-  {
-    name: "Michael Chen",
-    company: "Innovation Tech",
-    content: "We've been ordering our corporate gift cards from Colorful Card for three years. Their consistent quality and reliable delivery keep us coming back.",
-  },
-  {
-    name: "Emma Rodriguez",
-    company: "Premier Boutiques",
-    content: "The packaging solutions provided by Colorful Card helped elevate our brand image significantly. Our customers love the premium feel of our products now.",
-  },
-];

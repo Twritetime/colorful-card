@@ -1,11 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { translations } from '@/translations/translations';
 
-// 定义语言类型
-export type Language = 'zh' | 'en';
+// 支持的语言类型
+export type Language = 'en' | 'zh';
 
-// 定义上下文类型
+// 语言上下文类型
 type LanguageContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -15,136 +16,64 @@ type LanguageContextType = {
 // 创建语言上下文
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// 翻译数据
-const translations = {
-  zh: {
-    // 导航
-    'nav.home': '首页',
-    'nav.products': '产品',
-    'nav.about': '关于我们',
-    'nav.contact': '联系我们',
-    'nav.dashboard': '控制台',
-    'nav.language': '语言',
-    'nav.close': '关闭菜单',
-
-    // 首页
-    'home.hero.title': '高品质卡片与礼品解决方案，服务全球商务',
-    'home.hero.description': '彩卡有限公司为全球企业提供高质量定制卡片、包装和礼品解决方案。',
-    'home.hero.browse': '浏览产品',
-    'home.hero.contact': '联系我们',
-
-    // 产品
-    'products.title': '我们的产品',
-    'products.search': '搜索产品...',
-    'products.empty': '没有找到匹配的产品',
-    'products.loading': '加载中...',
-    'products.stock': '库存',
-    'products.all': '全部',
-    'products.category.business': '名片',
-    'products.category.greeting': '贺卡',
-    'products.category.gift': '礼品卡',
-    'products.category.invitation': '邀请卡',
-    
-    // 产品详情
-    'product.features': '产品特点',
-    'product.specs': '产品规格',
-    'product.related': '相关产品',
-    'product.customize': '定制您的订单',
-    'product.stock.status': '库存状态',
-    'product.stock.available': '有货',
-    'product.stock.unavailable': '缺货',
-    'product.getQuote': '获取报价',
-    'product.contact': '联系我们',
-    'product.back': '返回产品列表',
-    
-    // 用户
-    'user.login': '登录',
-    'user.logout': '退出登录',
-    'user.profile': '个人资料',
-  },
-  en: {
-    // Navigation
-    'nav.home': 'Home',
-    'nav.products': 'Products',
-    'nav.about': 'About Us',
-    'nav.contact': 'Contact',
-    'nav.dashboard': 'Dashboard',
-    'nav.language': 'Language',
-    'nav.close': 'Close menu',
-
-    // Home
-    'home.hero.title': 'Premium Card & Gift Solutions for Global Business',
-    'home.hero.description': 'Colorful Card Co., Ltd. delivers high-quality customized cards, packaging, and gift solutions for businesses worldwide.',
-    'home.hero.browse': 'Explore Products',
-    'home.hero.contact': 'Contact Us',
-
-    // Products
-    'products.title': 'Our Products',
-    'products.search': 'Search products...',
-    'products.empty': 'No products found matching your criteria',
-    'products.loading': 'Loading...',
-    'products.stock': 'Stock',
-    'products.all': 'All',
-    'products.category.business': 'Business Cards',
-    'products.category.greeting': 'Greeting Cards',
-    'products.category.gift': 'Gift Cards',
-    'products.category.invitation': 'Invitation Cards',
-    
-    // Product Detail
-    'product.features': 'Product Features',
-    'product.specs': 'Specifications',
-    'product.related': 'Related Products',
-    'product.customize': 'Customize Your Order',
-    'product.stock.status': 'Stock Status',
-    'product.stock.available': 'In Stock',
-    'product.stock.unavailable': 'Out of Stock',
-    'product.getQuote': 'Get a Quote',
-    'product.contact': 'Contact Us',
-    'product.back': 'Back to Products',
-    
-    // User
-    'user.login': 'Login',
-    'user.logout': 'Logout',
-    'user.profile': 'Profile',
-  }
-};
-
 // 语言提供者组件
-export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // 首先尝试从本地存储获取语言设置，默认为中文
-  const [language, setLanguage] = useState<Language>('zh');
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  // 首先尝试从本地存储获取语言设置，默认为英语
+  const [language, setLanguageState] = useState<Language>('en');
+  const [mounted, setMounted] = useState(false);
 
-  // 组件挂载时从本地存储加载语言设置
+  // 只在客户端执行localStorage操作
   useEffect(() => {
+    setMounted(true);
     const savedLanguage = localStorage.getItem('language') as Language;
-    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
-      setLanguage(savedLanguage);
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'zh')) {
+      setLanguageState(savedLanguage);
     }
   }, []);
 
-  // 保存语言设置到本地存储
-  const handleSetLanguage = (lang: Language) => {
-    setLanguage(lang);
-    localStorage.setItem('language', lang);
+  // 设置语言并保存到本地存储
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', lang);
+      console.log(`[LanguageContext] Language set to: ${lang}`);
+    }
   };
 
-  // 翻译函数
-  const t = (key: string): string => {
-    return translations[language][key] || key;
+  // 翻译函数，支持HTML标签
+  const t = (key: string) => {
+    // 如果找不到翻译，返回键名
+    if (!translations[language][key]) {
+      console.warn(`Translation missing for key: ${key} in language: ${language}`);
+      return key;
+    }
+    return translations[language][key];
   };
+
+  // 如果在服务器端或尚未挂载，使用默认语言
+  const contextValue = {
+    language,
+    setLanguage,
+    t,
+  };
+
+  // 使用useEffect来确保我们在客户端渲染时，语言状态已从localStorage正确加载
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
-};
+}
 
-// 自定义钩子，用于在组件中访问语言上下文
-export const useLanguage = (): LanguageContextType => {
+// 使用语言上下文的钩子
+export function useLanguage() {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
-}; 
+} 

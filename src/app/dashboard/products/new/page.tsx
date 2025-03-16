@@ -1,22 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createProduct } from "@/lib/productService";
+import { createProduct } from '@/lib/productService';
+import { getAllCategories, Category } from '@/lib/categoryService';
 import ImageDropzone from '@/components/ImageDropzone';
 
 export default function NewProductPage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     category: '',
-    stock: 100,
-    published: false,
-    images: [] as string[], // 初始化为空数组
+    stock: '',
+    published: true,
+    images: [] as string[]
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // 获取所有类目
+  useEffect(() => {
+    try {
+      const categoriesData = getAllCategories();
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('获取类目数据失败:', error);
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -34,173 +46,177 @@ export default function NewProductPage() {
     }));
   };
 
+  const handleImagesChange = (newImages: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      images: newImages
+    }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+    
     try {
-      // 创建新产品
-      const productToCreate = {
+      // 转换数据类型
+      const productData = {
         ...formData,
-        price: parseFloat(formData.price) || 0,
-        stock: parseInt(formData.stock.toString()) || 0,
-        images: formData.images.length ? formData.images : ["https://via.placeholder.com/150?text=No+Image"],
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock),
+        // 如果没有上传图片，使用默认图片
+        images: formData.images.length > 0 ? formData.images : ['https://placehold.co/600x400?text=产品图片']
       };
       
-      createProduct(productToCreate);
-      
-      // 显示成功消息
-      alert('产品保存成功！');
+      // 创建产品
+      const newProduct = createProduct(productData);
       
       // 重定向到产品列表页
       router.push('/dashboard/products');
     } catch (error) {
-      console.error('保存产品失败:', error);
-      alert('保存产品失败，请重试');
+      console.error('创建产品失败:', error);
+      alert('创建产品失败，请重试');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleImagesChange = (images: string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      images
-    }));
-  };
-
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">添加新产品</h2>
-        <button 
-          onClick={handleSave}
-          disabled={isSubmitting}
-          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? '保存中...' : '保存产品'}
-        </button>
+    <div className="container mx-auto py-6 px-4">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">添加新产品</h1>
       </div>
       
-      <div className="grid gap-4">
-        <div className="bg-card border rounded-lg shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b">
-            <h3 className="text-xl font-semibold">产品信息</h3>
-            <p className="text-sm text-muted-foreground">
-              填写产品的基本信息
-            </p>
+      <form onSubmit={handleSave} className="bg-white p-6 rounded-lg shadow">
+        <div className="grid gap-6 mb-6 md:grid-cols-2">
+          <div>
+            <label htmlFor="name" className="block mb-2 text-sm font-medium">
+              产品名称
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="输入产品名称"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
           </div>
-          <div className="p-6">
-            <form className="space-y-4" onSubmit={handleSave}>
-              <div className="grid gap-2">
-                <label htmlFor="name" className="text-sm font-medium">产品名称</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-md"
-                  placeholder="输入产品名称"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              
-              <div className="grid gap-2">
-                <label htmlFor="description" className="text-sm font-medium">产品描述</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  className="w-full px-3 py-2 border rounded-md min-h-[120px]"
-                  placeholder="输入产品描述"
-                  value={formData.description}
-                  onChange={handleChange}
-                ></textarea>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <label htmlFor="price" className="text-sm font-medium">产品价格</label>
-                  <input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    className="w-full px-3 py-2 border rounded-md"
-                    placeholder="输入产品价格"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="grid gap-2">
-                  <label htmlFor="stock" className="text-sm font-medium">库存数量</label>
-                  <input
-                    id="stock"
-                    name="stock"
-                    type="number"
-                    className="w-full px-3 py-2 border rounded-md"
-                    placeholder="输入库存数量"
-                    value={formData.stock}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid gap-2">
-                <label htmlFor="category" className="text-sm font-medium">产品分类</label>
-                <select 
-                  id="category" 
-                  name="category"
-                  className="w-full px-3 py-2 border rounded-md"
-                  value={formData.category}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">选择分类</option>
-                  <option value="greeting">贺卡</option>
-                  <option value="business">名片</option>
-                  <option value="invitation">邀请卡</option>
-                  <option value="gift">礼品卡</option>
-                </select>
-              </div>
-              
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">产品图片</label>
-                <ImageDropzone 
-                  initialImages={formData.images}
-                  onImagesChange={handleImagesChange}
-                  maxImages={5}
-                />
-              </div>
-              
-              <div className="flex items-center">
-                <input 
-                  type="checkbox" 
-                  id="published" 
-                  name="published"
-                  className="mr-2" 
-                  checked={formData.published}
-                  onChange={handleCheckboxChange}
-                />
-                <label htmlFor="published" className="text-sm font-medium">立即发布</label>
-              </div>
-              
-              <div className="mt-4">
-                <button 
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? '保存中...' : '保存产品'}
-                </button>
-              </div>
-            </form>
+          
+          <div>
+            <label htmlFor="category" className="block mb-2 text-sm font-medium">
+              产品类目
+            </label>
+            <select
+              id="category"
+              name="category"
+              className="w-full px-3 py-2 border rounded-md"
+              value={formData.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">选择类目</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label htmlFor="price" className="block mb-2 text-sm font-medium">
+              价格
+            </label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="输入价格"
+              min="0"
+              step="0.01"
+              value={formData.price}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="stock" className="block mb-2 text-sm font-medium">
+              库存
+            </label>
+            <input
+              type="number"
+              id="stock"
+              name="stock"
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="输入库存数量"
+              min="0"
+              value={formData.stock}
+              onChange={handleChange}
+              required
+            />
           </div>
         </div>
-      </div>
+        
+        <div className="mb-6">
+          <label htmlFor="description" className="block mb-2 text-sm font-medium">
+            产品描述
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows={4}
+            className="w-full px-3 py-2 border rounded-md"
+            placeholder="输入产品描述"
+            value={formData.description}
+            onChange={handleChange}
+          ></textarea>
+        </div>
+        
+        <div className="mb-6">
+          <label className="block mb-2 text-sm font-medium">
+            产品图片
+          </label>
+          <ImageDropzone 
+            initialImages={formData.images}
+            onImagesChange={handleImagesChange}
+          />
+        </div>
+        
+        <div className="flex items-center mb-6">
+          <input
+            id="published"
+            name="published"
+            type="checkbox"
+            className="w-4 h-4 mr-2"
+            checked={formData.published}
+            onChange={handleCheckboxChange}
+          />
+          <label htmlFor="published" className="text-sm font-medium">
+            立即发布
+          </label>
+        </div>
+        
+        <div className="flex justify-end space-x-4">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard/products')}
+            className="px-4 py-2 border rounded-md hover:bg-gray-100"
+          >
+            取消
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isSubmitting ? '保存中...' : '保存产品'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 } 

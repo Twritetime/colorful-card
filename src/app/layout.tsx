@@ -1,3 +1,5 @@
+'use client';
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -5,7 +7,10 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import { ThemeModeScript } from '@/components/theme-mode-script';
+import { Toaster } from '@/components/ui/toaster';
+import { cn } from "@/lib/utils";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,26 +24,36 @@ export const metadata: Metadata = {
   keywords: ["卡片", "礼品卡", "包装", "B2B", "名片", "贺卡", "彩卡"],
 };
 
+function RootLayoutInner({children}: {children: React.ReactNode}) {
+  const { language } = useLanguage();
+  
+  return (
+    <html lang={language} suppressHydrationWarning>
+      <head>
+        <ThemeModeScript />
+      </head>
+      <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
-            <LanguageProvider>
-              <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </div>
-            </LanguageProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </body>
-    </html>
+    <LanguageProvider>
+      <RootLayoutInner>{children}</RootLayoutInner>
+    </LanguageProvider>
   );
 }

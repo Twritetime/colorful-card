@@ -13,12 +13,15 @@ import {
   ArrowLeftOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
+  TagIcon,
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Products", href: "/dashboard/products", icon: CubeIcon },
+  { name: "Categories", href: "/dashboard/categories", icon: TagIcon },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingBagIcon },
   { name: "Inquiries", href: "/dashboard/inquiries", icon: ChatBubbleLeftRightIcon },
   { name: "Customers", href: "/dashboard/customers", icon: UsersIcon },
@@ -28,6 +31,21 @@ const navigation = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { t } = useLanguage();
+
+  // 导航项目名称翻译映射
+  const getNavName = (name: string) => {
+    switch (name) {
+      case "Dashboard": return t('nav.dashboard');
+      case "Products": return "产品管理";
+      case "Categories": return "类目管理";
+      case "Orders": return "订单管理";
+      case "Inquiries": return "询盘管理";
+      case "Customers": return "客户管理";
+      case "Settings": return "系统设置";
+      default: return name;
+    }
+  };
 
   return (
     <>
@@ -70,7 +88,7 @@ export default function DashboardSidebar() {
                   key={item.name}
                   href={item.href}
                   className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    pathname === item.href
+                    pathname === item.href || pathname.startsWith(`${item.href}/`)
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
@@ -78,13 +96,13 @@ export default function DashboardSidebar() {
                 >
                   <item.icon
                     className={`mr-3 flex-shrink-0 h-6 w-6 ${
-                      pathname === item.href
+                      pathname === item.href || pathname.startsWith(`${item.href}/`)
                         ? "text-primary"
                         : "text-muted-foreground group-hover:text-foreground"
                     }`}
                     aria-hidden="true"
                   />
-                  {item.name}
+                  {getNavName(item.name)}
                 </Link>
               ))}
             </nav>
@@ -100,7 +118,7 @@ export default function DashboardSidebar() {
                 </div>
                 <div className="ml-3">
                   <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
-                    Sign out
+                    退出登录
                   </p>
                 </div>
               </div>
@@ -142,20 +160,20 @@ export default function DashboardSidebar() {
                     key={item.name}
                     href={item.href}
                     className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      pathname === item.href
+                      pathname === item.href || pathname.startsWith(`${item.href}/`)
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                   >
                     <item.icon
                       className={`mr-3 flex-shrink-0 h-6 w-6 ${
-                        pathname === item.href
+                        pathname === item.href || pathname.startsWith(`${item.href}/`)
                           ? "text-primary"
                           : "text-muted-foreground group-hover:text-foreground"
                       }`}
                       aria-hidden="true"
                     />
-                    {item.name}
+                    {getNavName(item.name)}
                   </Link>
                 ))}
               </nav>
@@ -171,7 +189,7 @@ export default function DashboardSidebar() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground">
-                      Sign out
+                      退出登录
                     </p>
                   </div>
                 </div>

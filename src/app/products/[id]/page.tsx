@@ -10,6 +10,8 @@ import {
   CheckIcon
 } from "@heroicons/react/24/outline";
 import { Product, getProduct, getAllProducts } from "@/lib/productService";
+import { Category, getCategory } from "@/lib/categoryService";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProductPageProps {
   params: {
@@ -22,8 +24,10 @@ export default function ProductPage({ params }: ProductPageProps) {
   const { id } = unwrappedParams;
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   // 获取产品数据
   useEffect(() => {
@@ -41,6 +45,12 @@ export default function ProductPage({ params }: ProductPageProps) {
         
         setProduct(productData);
         
+        // 获取产品类目数据
+        if (productData.category) {
+          const categoryData = getCategory(productData.category);
+          setCategory(categoryData);
+        }
+        
         // 获取相关产品（同一类别的其他产品）
         const allProducts = getAllProducts()
           .filter(p => p.published && p.id !== id && p.category === productData.category)
@@ -57,24 +67,18 @@ export default function ProductPage({ params }: ProductPageProps) {
     fetchProduct();
   }, [id, router]);
 
-  // 将分类英文名转换为中文显示
-  const getCategoryName = (category: string) => {
-    switch (category) {
-      case 'business': return '名片';
-      case 'greeting': return '贺卡';
-      case 'gift': return '礼品卡';
-      case 'invitation': return '邀请卡';
-      default: return category;
-    }
+  // 获取类目名称
+  const getCategoryName = () => {
+    return category ? category.name : t('product.uncategorized');
   };
 
   // 自定义产品特点（实际项目中应在数据库中存储这些信息）
   const getProductFeatures = (product: Product) => {
     const baseFeatures = [
-      `高品质${getCategoryName(product.category)}`,
+      `高品质${getCategoryName()}`,
       "精准四色印刷",
       "可定制内容和设计",
-      `库存数量: ${product.stock}`,
+      `${t('products.stock')}: ${product.stock}`,
     ];
     return baseFeatures;
   };
@@ -82,18 +86,18 @@ export default function ProductPage({ params }: ProductPageProps) {
   // 产品规格（实际项目中应在数据库中存储这些信息）
   const getProductSpecs = (product: Product) => {
     return {
-      "产品类型": getCategoryName(product.category),
-      "价格": `¥${product.price.toFixed(2)}`,
-      "库存": product.stock.toString(),
-      "创建时间": new Date(product.createdAt).toLocaleDateString("zh-CN"),
-      "更新时间": new Date(product.updatedAt).toLocaleDateString("zh-CN"),
+      [t('product.type')]: getCategoryName(),
+      [t('product.price')]: `¥${product.price.toFixed(2)}`,
+      [t('products.stock')]: product.stock.toString(),
+      [t('product.createdAt')]: new Date(product.createdAt).toLocaleDateString(),
+      [t('product.updatedAt')]: new Date(product.updatedAt).toLocaleDateString(),
     };
   };
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center">
-        <p>加载中...</p>
+        <p>{t('products.loading')}</p>
       </div>
     );
   }
@@ -101,9 +105,9 @@ export default function ProductPage({ params }: ProductPageProps) {
   if (!product) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <p>产品不存在</p>
+        <p>{t('product.notFound')}</p>
         <Link href="/products" className="text-primary hover:underline mt-4 inline-block">
-          返回产品列表
+          {t('product.back')}
         </Link>
       </div>
     );
@@ -125,7 +129,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary"
         >
           <ChevronLeftIcon className="w-4 h-4 mr-1" />
-          返回产品列表
+          {t('product.back')}
         </Link>
       </div>
       
@@ -167,7 +171,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         {/* 产品信息 */}
         <div>
           <div className="bg-primary/10 px-4 py-2 rounded-md text-primary text-sm font-medium inline-block mb-4">
-            {getCategoryName(product.category)}
+            {getCategoryName()}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-4">{product.name}</h1>
           <div className="flex items-baseline mb-6">
@@ -185,7 +189,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           
           {/* 特点列表 */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-3">产品特点</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('product.features')}</h3>
             <ul className="space-y-2">
               {features.map((feature, index) => (
                 <li key={index} className="flex items-start">
@@ -198,11 +202,11 @@ export default function ProductPage({ params }: ProductPageProps) {
           
           {/* 订购 */}
           <div className="bg-card rounded-lg border border-border p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">定制您的订单</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('product.customize')}</h3>
             <div className="flex items-center mb-6">
-              <span className="text-sm font-medium mr-4">库存状态:</span>
+              <span className="text-sm font-medium mr-4">{t('product.stock.status')}:</span>
               <span className={`px-4 py-2 rounded-md ${product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                {product.stock > 0 ? '有货' : '缺货'}
+                {product.stock > 0 ? t('product.stock.available') : t('product.stock.unavailable')}
               </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -210,20 +214,20 @@ export default function ProductPage({ params }: ProductPageProps) {
                 href="/contact" 
                 className="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 text-center"
               >
-                获取报价
+                {t('product.getQuote')}
               </Link>
               <Link 
                 href="/contact" 
                 className="flex-1 border border-primary text-primary py-2 px-4 rounded-md hover:bg-primary/5 text-center"
               >
-                联系我们
+                {t('product.contact')}
               </Link>
             </div>
           </div>
           
           {/* 规格 */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4">产品规格</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('product.specs')}</h3>
             <div className="grid grid-cols-2 gap-4">
               {Object.entries(specs).map(([key, value]) => (
                 <div key={key} className="flex flex-col">
@@ -239,7 +243,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       {/* 相关产品 */}
       {relatedProducts.length > 0 && (
         <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-8">相关产品</h2>
+          <h2 className="text-2xl font-bold mb-8">{t('product.related')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedProducts.map((relatedProduct) => (
               <Link href={`/products/${relatedProduct.id}`} key={relatedProduct.id}>
@@ -249,9 +253,9 @@ export default function ProductPage({ params }: ProductPageProps) {
                       <Image
                         src={relatedProduct.images[0]}
                         alt={relatedProduct.name}
-                        width={400}
-                        height={300}
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        width={300}
+                        height={200}
+                        className="object-cover w-full h-full"
                         unoptimized={true}
                       />
                     ) : (
@@ -261,17 +265,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                     )}
                   </div>
                   <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg">{relatedProduct.name}</h3>
-                      <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
-                        {getCategoryName(relatedProduct.category)}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-                      {relatedProduct.description}
-                    </p>
-                    <div className="flex justify-between items-center mt-auto">
+                    <h3 className="font-semibold">{relatedProduct.name}</h3>
+                    <div className="flex justify-between items-center mt-2">
                       <span className="font-medium text-primary">¥{relatedProduct.price.toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground">{t('products.stock')}: {relatedProduct.stock}</span>
                     </div>
                   </div>
                 </div>

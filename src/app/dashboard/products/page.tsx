@@ -1,149 +1,144 @@
+'use client';
+
+import { Metadata } from "next";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import { Product, getAllProducts } from "@/lib/productService";
+import { getAllCategories, Category } from '@/lib/categoryService';
+import { CategoryIcon } from '@/components/icons/CategoryIcons';
+import Image from 'next/image';
 
-export default async function ProductsPage() {
-  // 在实际应用中，这些数据应该从数据库中获取
-  const products = [
-    {
-      id: "1",
-      name: "Premium Business Card",
-      description: "High-quality business cards with custom design",
-      price: 49.99,
-      images: ["https://images.unsplash.com/photo-1572502007796-bf53841bc530"],
-      stock: 100,
-      minOrder: 50,
-      categoryId: "1",
-      featured: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      category: {
-        id: "1",
-        name: "Business Cards",
-        slug: "business-cards",
-      },
-    },
-    {
-      id: "2",
-      name: "Luxury Gift Card",
-      description: "Elegant gift cards for special occasions",
-      price: 29.99,
-      images: ["https://images.unsplash.com/photo-1607344645866-009c320b63e0"],
-      stock: 200,
-      minOrder: 25,
-      categoryId: "2",
-      featured: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      category: {
-        id: "2",
-        name: "Gift Cards",
-        slug: "gift-cards",
-      },
-    },
-    {
-      id: "3",
-      name: "Corporate Greeting Card",
-      description: "Professional greeting cards for business communications",
-      price: 19.99,
-      images: ["https://images.unsplash.com/photo-1512909006721-3d6018887383"],
-      stock: 150,
-      minOrder: 20,
-      categoryId: "3",
-      featured: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      category: {
-        id: "3",
-        name: "Greeting Cards",
-        slug: "greeting-cards",
-      },
-    },
-  ];
+// 由于元数据只能在服务器组件中定义，我们需要在另一个文件中定义或使用替代方法
+// export const metadata: Metadata = {
+//   title: "产品管理",
+//   description: "管理您的产品目录",
+// };
+
+export default function ProductsPage() {
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{[key: string]: Category}>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // 获取所有产品数据
+    try {
+      const productsData = getAllProducts();
+      setProducts(productsData);
+      
+      // 获取所有类目并转换为对象，方便查找
+      const categoriesData = getAllCategories();
+      const categoriesMap = categoriesData.reduce((acc, category) => {
+        acc[category.id] = category;
+        return acc;
+      }, {} as {[key: string]: Category});
+      setCategories(categoriesMap);
+    } catch (error) {
+      console.error("获取数据失败:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const handleAddProduct = () => {
+    router.push('/dashboard/products/new');
+  };
+
+  const handleClickProduct = (id: string) => {
+    router.push(`/dashboard/products/${id}`);
+  };
+
+  // 获取类目名称
+  const getCategoryName = (categoryId: string) => {
+    return categories[categoryId]?.name || '未分类';
+  };
+
+  // 获取类目图标
+  const getCategoryIcon = (categoryId: string) => {
+    return categories[categoryId]?.icon || 'Folder';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-lg">加载中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Products</h1>
-          <p className="text-muted-foreground">
-            Manage your product catalog and inventory
-          </p>
-        </div>
-        <Link
-          href="/dashboard/products/new"
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+    <div className="container mx-auto py-6 px-4">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">产品管理</h1>
+        <button
+          onClick={handleAddProduct}
+          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
         >
-          <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          Add Product
-        </Link>
+          添加新产品
+        </button>
       </div>
-
-      <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
-            <thead className="bg-muted/50">
-              <tr>
-                <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-foreground sm:pl-6">
-                  Product
-                </th>
-                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">
-                  Category
-                </th>
-                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">
-                  Price
-                </th>
-                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-foreground">
-                  Stock
-                </th>
-                <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-background">
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
-                    <div className="flex items-center">
-                      {product.images[0] && (
-                        <div className="h-10 w-10 flex-shrink-0 rounded-md border overflow-hidden">
-                          <img 
-                            src={product.images[0]} 
-                            alt={product.name} 
-                            className="h-full w-full object-cover object-center"
-                          />
-                        </div>
-                      )}
-                      <div className="ml-4">
-                        <div className="font-medium text-foreground">{product.name}</div>
-                        <div className="text-muted-foreground truncate max-w-[250px]">{product.description}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm">
-                    <div className="text-foreground">{product.category.name}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm">
-                    <div className="text-foreground">${product.price.toFixed(2)}</div>
-                    <div className="text-muted-foreground">min: {product.minOrder}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm">
-                    <div className="text-foreground">{product.stock}</div>
-                  </td>
-                  <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                    <Link
-                      href={`/dashboard/products/${product.id}`}
-                      className="text-primary hover:text-primary/80"
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      
+      {products.length === 0 ? (
+        <div className="bg-white p-6 rounded-lg shadow text-center">
+          <p className="text-lg mb-4">暂无产品数据</p>
+          <button
+            onClick={handleAddProduct}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          >
+            添加第一个产品
+          </button>
         </div>
-      </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {products.map((product) => (
+            <Link 
+              key={product.id} 
+              href={`/dashboard/products/${product.id}`}
+              className="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow"
+            >
+              <div className="relative h-48 bg-gray-100">
+                {product.images && product.images.length > 0 ? (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400">
+                    无图片
+                  </div>
+                )}
+                {product.published ? (
+                  <span className="absolute top-2 right-2 px-2 py-1 bg-green-500 text-white text-xs rounded">
+                    已发布
+                  </span>
+                ) : (
+                  <span className="absolute top-2 right-2 px-2 py-1 bg-gray-500 text-white text-xs rounded">
+                    未发布
+                  </span>
+                )}
+              </div>
+              <div className="p-4">
+                <div className="flex items-center mb-2">
+                  <CategoryIcon icon={getCategoryIcon(product.category)} className="h-4 w-4 mr-1 text-gray-500" />
+                  <span className="text-sm text-gray-500">{getCategoryName(product.category)}</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-1">{product.name}</h3>
+                <p className="text-primary font-medium">¥{product.price.toFixed(2)}</p>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm text-gray-500">库存: {product.stock}</span>
+                  <span className="text-sm text-gray-500">ID: {product.id}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 } 
