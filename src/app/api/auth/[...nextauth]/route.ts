@@ -1,20 +1,12 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { compare } from "@/lib/auth";
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-import { prisma } from "@/lib/prisma";
 
 // 为解决Vercel部署问题，添加动态配置
 export const dynamic = 'force-dynamic';
 
+// 简化认证，不使用数据库，仅用于演示目的
 const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -22,44 +14,30 @@ const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials?.password) {
-            throw new Error("Invalid credentials");
-          }
-
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email,
-            },
-          });
-
-          if (!user || !user?.hashedPassword) {
-            throw new Error("Invalid credentials");
-          }
-
-          const isCorrectPassword = await compare(
-            credentials.password,
-            user.hashedPassword
-          );
-
-          if (!isCorrectPassword) {
-            throw new Error("Invalid credentials");
-          }
-
-          return user;
-        } catch (error) {
-          console.error("NextAuth authorize error:", error);
-          return null;
+        // 演示模式，使用硬编码的测试账户
+        if (
+          credentials?.email === "admin@example.com" && 
+          credentials?.password === "password123"
+        ) {
+          return {
+            id: "1",
+            name: "管理员",
+            email: "admin@example.com",
+            role: "ADMIN"
+          };
         }
+        
+        // 登录失败
+        return null;
       },
     }),
   ],
   pages: {
     signIn: "/login",
   },
-  debug: process.env.NODE_ENV === "development",
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30天
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
@@ -78,6 +56,7 @@ const authOptions: AuthOptions = {
       return token;
     },
   },
+  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);
