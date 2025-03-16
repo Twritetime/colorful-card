@@ -10,32 +10,31 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
-                Premium Card & Gift <span className="text-primary">Solutions</span> for Global Business
+                高品质卡片与礼品<span className="text-primary">解决方案</span>，服务全球商务
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground">
-                Shenzhen Colorful Card Co., Ltd. delivers high-quality customized cards, 
-                packaging, and gift solutions for businesses worldwide.
+                彩卡有限公司为全球企业提供高质量定制卡片、包装和礼品解决方案。
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link 
                   href="/products" 
                   className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none"
                 >
-                  Explore Products
+                  浏览产品
                 </Link>
                 <Link 
                   href="/contact" 
                   className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-primary transition duration-200 bg-transparent border border-primary rounded-lg hover:bg-primary/5 focus:outline-none"
                 >
-                  Contact Us
+                  联系我们
                 </Link>
               </div>
             </div>
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <div className="aspect-[16/9]">
                 <Image 
-                  src="https://images.unsplash.com/photo-1560177112-fbfd5fde9566?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
-                  alt="Colorful business cards" 
+                  src="https://gcore.jsdelivr.net/gh/Twritetime/Images-0@main/blog-writetime/20250308220406915.png" 
+                  alt="彩卡产品展示" 
                   fill
                   className="object-cover"
                   priority
@@ -51,10 +50,9 @@ export default function Home() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Us</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">为什么选择我们</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              With over a decade of experience, we offer exceptional quality, competitive pricing, 
-              and reliable service to our global clients.
+              凭借十多年的经验，我们为全球客户提供卓越品质、具有竞争力的价格和可靠的服务。
             </p>
           </div>
           
@@ -79,9 +77,9 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Product Categories</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">我们的产品类别</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Explore our wide range of high-quality products designed to meet your specific needs.
+              探索我们广泛的高品质产品系列，专为满足您的特定需求而设计。
             </p>
           </div>
           
@@ -114,7 +112,7 @@ export default function Home() {
               href="/products" 
               className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none"
             >
-              View All Products
+              查看所有产品
             </Link>
           </div>
         </div>
@@ -124,9 +122,9 @@ export default function Home() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Clients Say</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">客户评价</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Hear from businesses around the world who trust our products and services.
+              听听来自全球信任我们产品和服务的企业客户的声音。
             </p>
           </div>
           
@@ -168,23 +166,23 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Upgrade Your Business Materials?
+              准备升级您的企业物料？
             </h2>
             <p className="text-lg text-white/80 mb-8">
-              Contact us today to discuss your project requirements and receive a customized quote.
+              立即联系我们，讨论您的项目需求并获取定制报价。
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/contact" 
                 className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-primary transition duration-200 bg-white rounded-lg hover:bg-gray-100 focus:outline-none"
               >
-                Request a Quote
+                获取报价
               </Link>
               <Link 
                 href="/products" 
                 className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-transparent border border-white rounded-lg hover:bg-white/10 focus:outline-none"
               >
-                Browse Products
+                浏览产品
               </Link>
             </div>
           </div>
@@ -197,8 +195,8 @@ export default function Home() {
 // Sample data
 const features = [
   {
-    title: "Custom Design",
-    description: "Professional design services tailored to your brand identity and specific needs.",
+    title: "定制设计",
+    description: "根据您的品牌标识和特定需求量身定制的专业设计服务。",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
@@ -206,8 +204,8 @@ const features = [
     ),
   },
   {
-    title: "Premium Materials",
-    description: "High-quality materials ensuring durability, aesthetics, and eco-friendly options.",
+    title: "优质材料",
+    description: "高品质材料确保耐用性、美观性，并提供环保选项。",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -215,8 +213,8 @@ const features = [
     ),
   },
   {
-    title: "Global Shipping",
-    description: "Reliable worldwide shipping with tracking and expedited options available.",
+    title: "全球配送",
+    description: "可靠的全球配送服务，提供追踪功能和加急选项。",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -224,8 +222,8 @@ const features = [
     ),
   },
   {
-    title: "Quality Assurance",
-    description: "Strict quality control to ensure every product meets our high standards.",
+    title: "质量保证",
+    description: "严格的质量控制，确保每件产品都符合我们的高标准。",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -236,14 +234,14 @@ const features = [
 
 const categories = [
   {
-    title: "Business Cards",
-    description: "Premium quality cards with various finishes and materials",
+    title: "名片",
+    description: "多种工艺和材质的高级名片",
     image: "https://images.unsplash.com/photo-1572502007796-bf53841bc530?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
     href: "/products",
   },
   {
-    title: "Gift Cards",
-    description: "Customized gift cards for retail and special occasions",
+    title: "礼品卡",
+    description: "为零售和特殊场合定制的精美礼品卡",
     image: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
     href: "/products",
   },

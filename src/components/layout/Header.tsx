@@ -7,28 +7,31 @@ import { usePathname } from "next/navigation";
 import { Bars3Icon, UserIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
 import MobileMenu from "./MobileMenu";
-
-const navigation = [
-  { name: "Home", href: "/" },
-  { name: "Products", href: "/products" },
-  { name: "About Us", href: "/about" },
-  { name: "Contact", href: "/contact" },
-];
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Header() {
+  const { t } = useLanguage();
   const { data: session } = useSession();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const navigation = [
+    { name: t('nav.home'), href: "/" },
+    { name: t('nav.products'), href: "/products" },
+    { name: t('nav.about'), href: "/about" },
+    { name: t('nav.contact'), href: "/contact" },
+  ];
   
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
-            <span className="sr-only">Colorful Card</span>
+            <span className="sr-only">彩卡</span>
             <div className="flex items-center">
               <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-white font-bold mr-2">CC</div>
-              <span className="font-bold text-lg text-primary">Colorful Card</span>
+              <span className="font-bold text-lg text-primary">彩卡</span>
             </div>
           </Link>
         </div>
@@ -39,7 +42,7 @@ export default function Header() {
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-gray-300"
             onClick={() => setMobileMenuOpen(true)}
           >
-            <span className="sr-only">Open main menu</span>
+            <span className="sr-only">打开菜单</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
@@ -62,15 +65,16 @@ export default function Header() {
         
         <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center space-x-4">
           <ThemeToggle />
+          <LanguageSwitcher />
           
           {session ? (
             <Link href="/dashboard" className="flex items-center text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">
               <UserIcon className="h-6 w-6 mr-1" />
-              <span>Dashboard</span>
+              <span>{t('nav.dashboard')}</span>
             </Link>
           ) : (
             <Link href="/login" className="text-sm font-semibold leading-6 text-muted-foreground hover:text-primary transition-colors">
-              Log in <span aria-hidden="true">&rarr;</span>
+              {t('user.login')} <span aria-hidden="true">&rarr;</span>
             </Link>
           )}
         </div>

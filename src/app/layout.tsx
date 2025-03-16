@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,9 +14,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Colorful Card - Professional Card & Gift Solutions",
-  description: "Shenzhen Colorful Card Co., Ltd. - Leading manufacturer of professional cards, gifts and packaging solutions for global B2B market",
-  keywords: ["cards", "gift cards", "packaging", "B2B", "business cards", "greeting cards", "colorful card"],
+  title: "彩卡 - 专业卡片与礼品解决方案",
+  description: "彩卡有限公司 - 全球B2B市场领先的专业卡片、礼品和包装解决方案制造商",
+  keywords: ["卡片", "礼品卡", "包装", "B2B", "名片", "贺卡", "彩卡"],
 };
 
 export default function RootLayout({
@@ -24,15 +25,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`}>
+    <html lang="zh" suppressHydrationWarning>
+      <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
+            <LanguageProvider>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </div>
+            </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

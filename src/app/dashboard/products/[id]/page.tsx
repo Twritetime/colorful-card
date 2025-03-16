@@ -1,22 +1,66 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createProduct } from "@/lib/productService";
+import { getProduct, updateProduct, deleteProduct } from '@/lib/productService';
+import { use } from 'react';
 import ImageDropzone from '@/components/ImageDropzone';
 
-export default function NewProductPage() {
+interface ProductPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function ProductPage({ params }: ProductPageProps) {
+  const unwrappedParams = use(params);
+  const { id } = unwrappedParams;
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
+    price: 0,
     category: '',
-    stock: 100,
-    published: false,
-    images: [] as string[], // 初始化为空数组
+    stock: 0,
+    published: true,
+    images: [] as string[],
   });
+
+  // 获取产品数据
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setIsLoading(true);
+        const product = getProduct(id);
+        
+        if (!product) {
+          alert('未找到产品');
+          router.push('/dashboard/products');
+          return;
+        }
+        
+        setFormData({
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          category: product.category,
+          stock: product.stock,
+          published: product.published,
+          images: product.images,
+        });
+      } catch (error) {
+        console.error('获取产品失败:', error);
+        alert('获取产品失败');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -39,26 +83,56 @@ export default function NewProductPage() {
     setIsSubmitting(true);
 
     try {
-      // 创建新产品
-      const productToCreate = {
+      // 转换数据类型
+      const productToUpdate = {
         ...formData,
-        price: parseFloat(formData.price) || 0,
-        stock: parseInt(formData.stock.toString()) || 0,
-        images: formData.images.length ? formData.images : ["https://via.placeholder.com/150?text=No+Image"],
+        price: typeof formData.price === 'string' ? parseFloat(formData.price) : formData.price,
+        stock: typeof formData.stock === 'string' ? parseInt(formData.stock) : formData.stock,
       };
       
-      createProduct(productToCreate);
+      // 更新产品
+      const updatedProduct = updateProduct(id, productToUpdate);
+      
+      if (!updatedProduct) {
+        throw new Error('更新产品失败');
+      }
       
       // 显示成功消息
-      alert('产品保存成功！');
+      alert('产品更新成功！');
+    } catch (error) {
+      console.error('更新产品失败:', error);
+      alert('更新产品失败，请重试');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    // 确认删除
+    if (!window.confirm('确定要删除此产品吗？此操作无法撤销。')) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      // 删除产品
+      const success = deleteProduct(id);
+      
+      if (!success) {
+        throw new Error('删除产品失败');
+      }
+      
+      // 显示成功消息
+      alert('产品删除成功！');
       
       // 重定向到产品列表页
       router.push('/dashboard/products');
     } catch (error) {
-      console.error('保存产品失败:', error);
-      alert('保存产品失败，请重试');
+      console.error('删除产品失败:', error);
+      alert('删除产品失败，请重试');
     } finally {
-      setIsSubmitting(false);
+      setIsDeleting(false);
     }
   };
 
@@ -69,25 +143,67 @@ export default function NewProductPage() {
     }));
   };
 
+  // 产品图片
+  const productImage = formData.images && formData.images.length > 0 
+    ? formData.images[0] 
+    : "https://via.placeholder.com/150?text=No+Image";
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>加载中...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 p-4 md:p-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">添加新产品</h2>
-        <button 
-          onClick={handleSave}
-          disabled={isSubmitting}
-          className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? '保存中...' : '保存产品'}
-        </button>
+        <h2 className="text-3xl font-bold tracking-tight">产品详情</h2>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            type="button"
+          >
+            {isDeleting ? '删除中...' : '删除'}
+          </button>
+          <button 
+            type="button"
+            onClick={handleSave}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? '保存中...' : '保存更改'}
+          </button>
+        </div>
       </div>
       
-      <div className="grid gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* 产品图片 */}
+        <div className="bg-card border rounded-lg shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b">
+            <h3 className="text-xl font-semibold">产品图片</h3>
+            <p className="text-sm text-muted-foreground">
+              上传产品图片，支持拖放和多图上传
+            </p>
+          </div>
+          <div className="p-6">
+            <ImageDropzone 
+              initialImages={formData.images}
+              onImagesChange={handleImagesChange}
+              maxImages={5}
+            />
+          </div>
+        </div>
+        
+        {/* 产品信息 */}
         <div className="bg-card border rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b">
             <h3 className="text-xl font-semibold">产品信息</h3>
             <p className="text-sm text-muted-foreground">
-              填写产品的基本信息
+              编辑产品的基本信息
             </p>
           </div>
           <div className="p-6">
@@ -99,7 +215,6 @@ export default function NewProductPage() {
                   name="name"
                   type="text"
                   className="w-full px-3 py-2 border rounded-md"
-                  placeholder="输入产品名称"
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -112,7 +227,6 @@ export default function NewProductPage() {
                   id="description"
                   name="description"
                   className="w-full px-3 py-2 border rounded-md min-h-[120px]"
-                  placeholder="输入产品描述"
                   value={formData.description}
                   onChange={handleChange}
                 ></textarea>
@@ -127,7 +241,6 @@ export default function NewProductPage() {
                     type="number"
                     step="0.01"
                     className="w-full px-3 py-2 border rounded-md"
-                    placeholder="输入产品价格"
                     value={formData.price}
                     onChange={handleChange}
                     required
@@ -141,7 +254,6 @@ export default function NewProductPage() {
                     name="stock"
                     type="number"
                     className="w-full px-3 py-2 border rounded-md"
-                    placeholder="输入库存数量"
                     value={formData.stock}
                     onChange={handleChange}
                     required
@@ -154,7 +266,7 @@ export default function NewProductPage() {
                 <select 
                   id="category" 
                   name="category"
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-2 border rounded-md" 
                   value={formData.category}
                   onChange={handleChange}
                   required
@@ -167,15 +279,6 @@ export default function NewProductPage() {
                 </select>
               </div>
               
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">产品图片</label>
-                <ImageDropzone 
-                  initialImages={formData.images}
-                  onImagesChange={handleImagesChange}
-                  maxImages={5}
-                />
-              </div>
-              
               <div className="flex items-center">
                 <input 
                   type="checkbox" 
@@ -185,16 +288,16 @@ export default function NewProductPage() {
                   checked={formData.published}
                   onChange={handleCheckboxChange}
                 />
-                <label htmlFor="published" className="text-sm font-medium">立即发布</label>
+                <label htmlFor="published" className="text-sm font-medium">发布状态</label>
               </div>
-              
+
               <div className="mt-4">
                 <button 
                   type="submit"
                   disabled={isSubmitting}
                   className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? '保存中...' : '保存产品'}
+                  {isSubmitting ? '保存中...' : '保存更改'}
                 </button>
               </div>
             </form>

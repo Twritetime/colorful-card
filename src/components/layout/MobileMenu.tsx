@@ -6,6 +6,8 @@ import { XMarkIcon, UserIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Session } from "next-auth";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MobileMenuProps {
   mobileMenuOpen: boolean;
@@ -20,6 +22,8 @@ export default function MobileMenu({
   navigation,
   session 
 }: MobileMenuProps) {
+  const { t } = useLanguage();
+  
   return (
     <Transition.Root show={mobileMenuOpen} as={Fragment}>
       <Dialog 
@@ -51,13 +55,16 @@ export default function MobileMenu({
           >
             <Dialog.Panel className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-background py-4 pb-12 shadow-xl">
               <div className="flex items-center justify-between px-4">
-                <ThemeToggle />
+                <div className="flex space-x-4">
+                  <ThemeToggle />
+                  <LanguageSwitcher />
+                </div>
                 <button
                   type="button"
                   className="-m-2.5 rounded-md p-2.5 text-muted-foreground"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <span className="sr-only">Close menu</span>
+                  <span className="sr-only">{t('nav.close')}</span>
                   <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
@@ -84,7 +91,7 @@ export default function MobileMenu({
                         className="-mx-3 flex items-center rounded-lg px-3 py-2 text-base font-semibold leading-7 text-foreground hover:bg-muted"
                       >
                         <UserIcon className="h-6 w-6 mr-2" />
-                        Dashboard
+                        {t('nav.dashboard')}
                       </Link>
                     ) : (
                       <Link
@@ -92,7 +99,7 @@ export default function MobileMenu({
                         onClick={() => setMobileMenuOpen(false)}
                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-foreground hover:bg-muted"
                       >
-                        Log in
+                        {t('user.login')}
                       </Link>
                     )}
                   </div>
