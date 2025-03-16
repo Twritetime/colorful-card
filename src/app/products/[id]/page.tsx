@@ -75,9 +75,12 @@ export function generateStaticParams() {
   }));
 }
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  // 确保params.id是字符串
+  const productId = String(params.id);
+  
   // 在实际应用中，应该从数据库获取产品数据
-  const product = productData.find(p => p.id === params.id) || productData[0];
+  const product = productData.find(p => p.id === productId) || productData[0];
   
   // 获取相关产品
   const relatedProducts = product.relatedProducts 

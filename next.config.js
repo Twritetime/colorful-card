@@ -10,6 +10,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  reactStrictMode: false,
+  poweredByHeader: false,
 };
 
 module.exports = nextConfig;
