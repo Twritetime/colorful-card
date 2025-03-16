@@ -5,6 +5,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 
+// 为解决Vercel部署问题，添加静态配置
+export const dynamic = 'force-dynamic';
+
 const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [

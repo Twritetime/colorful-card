@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
   "framework": "nextjs",
   "env": {
@@ -8,6 +8,7 @@
     "NEXTAUTH_SECRET": "kWCsXh83297sSVCQQaGv/64RPFA6vyfbmZxqsC9/DIY=",
     "NEXTAUTH_URL": "https://colorful-card-twritetimes-projects.vercel.app",
     "SKIP_ENV_VALIDATION": "true",
-    "SKIP_TYPE_CHECK": "true"
+    "SKIP_TYPE_CHECK": "true",
+    "NODE_ENV": "production"
   }
 } 
