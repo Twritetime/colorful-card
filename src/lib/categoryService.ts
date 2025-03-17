@@ -57,31 +57,36 @@ export const getAllCategories = async (): Promise<Category[]> => {
 // 创建新类目
 export const createCategory = async (categoryData: Omit<Category, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Category | null> => {
   try {
+    console.log('准备创建类别:', JSON.stringify(categoryData));
+    
     const response = await fetch(`${API_BASE_URL}/api/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(categoryData),
+      cache: 'no-store',
     });
     
     if (!response.ok) {
-      console.error('创建类目失败:', response.statusText);
-      return null;
+      const errorText = await response.text();
+      console.error('创建类别失败:', response.status, response.statusText, errorText);
+      throw new Error(`创建类别失败: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const result = await response.json();
+    console.log('类别创建成功:', result);
     return result.success ? result.data : null;
   } catch (error) {
     console.error('创建类目出错:', error);
-    return null;
+    throw error; // 向上传递错误
   }
 };
 
 // 更新类目
 export const updateCategory = async (id: string, categoryData: Partial<Category>): Promise<Category | null> => {
   try {
-    // 确保数据中不包含_id字段，避免MongoDB更新错误
+    // 确保数据中不包含_id和id字段，避免MongoDB更新错误
     const { _id, id: dataId, ...updateData } = categoryData as any;
     
     console.log('准备更新类别，ID:', id);
@@ -93,12 +98,13 @@ export const updateCategory = async (id: string, categoryData: Partial<Category>
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(updateData),
+      cache: 'no-store',
     });
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('更新类目失败:', response.status, response.statusText, errorText);
-      throw new Error(`更新类目失败: ${response.status} ${response.statusText} - ${errorText}`);
+      console.error('更新类别失败:', response.status, response.statusText, errorText);
+      throw new Error(`更新类别失败: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const result = await response.json();

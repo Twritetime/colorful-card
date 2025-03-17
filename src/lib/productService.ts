@@ -69,32 +69,40 @@ export const getAllProducts = async (): Promise<Product[]> => {
 // 创建新产品
 export const createProduct = async (productData: Omit<Product, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Product | null> => {
   try {
+    console.log('准备创建产品:', JSON.stringify(productData));
+    
     const response = await fetch(`${API_BASE_URL}/api/products`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(productData),
+      cache: 'no-store',
     });
     
     if (!response.ok) {
-      console.error('创建产品失败:', response.statusText);
-      return null;
+      const errorText = await response.text();
+      console.error('创建产品失败:', response.status, response.statusText, errorText);
+      throw new Error(`创建产品失败: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const result = await response.json();
+    console.log('产品创建成功:', result);
     return result.success ? result.data : null;
   } catch (error) {
     console.error('创建产品出错:', error);
-    return null;
+    throw error; // 向上传递错误
   }
 };
 
 // 更新产品
 export const updateProduct = async (id: string, productData: Partial<Product>): Promise<Product | null> => {
   try {
-    // 确保不传递_id字段，避免MongoDB更新错误
-    const { _id, ...updateData } = productData;
+    // 确保数据中不包含_id和id字段，避免MongoDB更新错误
+    const { _id, id: dataId, ...updateData } = productData as any;
+    
+    console.log('准备更新产品，ID:', id);
+    console.log('更新数据:', JSON.stringify(updateData));
     
     const response = await fetch(`${API_BASE_URL}/api/products/${id}`, {
       method: 'PUT',
@@ -102,18 +110,21 @@ export const updateProduct = async (id: string, productData: Partial<Product>): 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(updateData),
+      cache: 'no-store',
     });
     
     if (!response.ok) {
-      console.error('更新产品失败:', response.statusText);
-      return null;
+      const errorText = await response.text();
+      console.error('更新产品失败:', response.status, response.statusText, errorText);
+      throw new Error(`更新产品失败: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const result = await response.json();
+    console.log('产品更新成功:', result);
     return result.success ? result.data : null;
   } catch (error) {
     console.error('更新产品出错:', error);
-    return null;
+    throw error; // 向上传递错误
   }
 };
 
