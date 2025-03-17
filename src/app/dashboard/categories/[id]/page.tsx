@@ -20,19 +20,24 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
 
   // 获取类目数据
   useEffect(() => {
-    try {
-      const categoryData = getCategory(params.id);
-      if (categoryData) {
-        setCategory(categoryData);
-      } else {
-        setError('找不到该类目');
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const categoryData = await getCategory(params.id);
+        if (categoryData) {
+          setCategory(categoryData);
+        } else {
+          setError('找不到该类目');
+        }
+      } catch (err) {
+        console.error('获取类目数据失败:', err);
+        setError('获取类目数据失败');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('获取类目数据失败:', err);
-      setError('获取类目数据失败');
-    } finally {
-      setIsLoading(false);
-    }
+    };
+    
+    fetchData();
   }, [params.id]);
 
   // 处理更新类目
@@ -40,7 +45,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
     setIsSubmitting(true);
     try {
       // 更新类目
-      const updatedCategory = updateCategory(params.id, categoryData);
+      const updatedCategory = await updateCategory(params.id, categoryData);
       
       // 显示成功消息
       alert('类目更新成功！');

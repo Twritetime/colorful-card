@@ -22,12 +22,16 @@ export default function NewProductPage() {
 
   // 获取所有类目
   useEffect(() => {
-    try {
-      const categoriesData = getAllCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error('获取类目数据失败:', error);
-    }
+    const fetchCategories = async () => {
+      try {
+        const categoriesData = await getAllCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('获取类目数据失败:', error);
+      }
+    };
+    
+    fetchCategories();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -68,7 +72,7 @@ export default function NewProductPage() {
       };
       
       // 创建产品
-      const newProduct = createProduct(productData);
+      const newProduct = await createProduct(productData);
       
       // 重定向到产品列表页
       router.push('/dashboard/products');

@@ -30,30 +30,34 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // 获取产品数据和类目数据
   useEffect(() => {
-    try {
-      // 获取产品数据
-      const productData = getProduct(params.id);
-      if (productData) {
-        setProduct(productData);
-        setFormData({
-          name: productData.name,
-          description: productData.description || '',
-          price: productData.price.toString(),
-          category: productData.category || '',
-          stock: productData.stock.toString(),
-          published: productData.published,
-          images: productData.images || []
-        });
+    const fetchData = async () => {
+      try {
+        // 获取产品数据
+        const productData = await getProduct(params.id);
+        if (productData) {
+          setProduct(productData);
+          setFormData({
+            name: productData.name,
+            description: productData.description || '',
+            price: productData.price.toString(),
+            category: productData.category || '',
+            stock: productData.stock.toString(),
+            published: productData.published,
+            images: productData.images || []
+          });
+        }
+        
+        // 获取所有类目
+        const categoriesData = await getAllCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('获取数据失败:', error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // 获取所有类目
-      const categoriesData = getAllCategories();
-      setCategories(categoriesData);
-    } catch (error) {
-      console.error('获取数据失败:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+    
+    fetchData();
   }, [params.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -94,7 +98,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       };
       
       // 更新产品
-      const updatedProduct = updateProduct(params.id, productData);
+      const updatedProduct = await updateProduct(params.id, productData);
       
       // 显示成功消息
       alert('产品更新成功！');
@@ -113,7 +117,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     if (window.confirm('确定要删除这个产品吗？此操作不可撤销。')) {
       try {
         // 删除产品
-        deleteProduct(params.id);
+        await deleteProduct(params.id);
         
         // 显示成功消息
         alert('产品删除成功！');

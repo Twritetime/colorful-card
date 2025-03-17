@@ -48,17 +48,21 @@ export default function CategoryForm({
 
   // 获取所有类目，用于父类目选择
   useEffect(() => {
-    try {
-      const data = getAllCategories();
-      // 过滤掉当前类目（如果是编辑模式）
-      const filteredCategories = initialData?.id 
-        ? data.filter(cat => cat.id !== initialData.id)
-        : data;
-      setCategories(filteredCategories);
-    } catch (error) {
-      console.error('获取类目数据失败:', error);
-    }
-  }, [initialData]);
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategories();
+        // 过滤掉当前类目（如果是编辑模式）
+        const filteredCategories = initialData?.id 
+          ? data.filter(cat => cat.id !== initialData.id)
+          : data;
+        setCategories(filteredCategories);
+      } catch (error) {
+        console.error('获取类目数据失败:', error);
+      }
+    };
+    
+    fetchCategories();
+  }, [initialData?.id]);
 
   // 处理输入变化
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

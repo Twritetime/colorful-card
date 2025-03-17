@@ -16,14 +16,19 @@ export default function CategoriesPage() {
 
   // 获取所有类目
   useEffect(() => {
-    try {
-      const data = getAllCategories();
-      setCategories(data);
-    } catch (error) {
-      console.error('获取类目数据失败:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getAllCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('获取类目数据失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   // 处理添加新类目
@@ -39,7 +44,7 @@ export default function CategoriesPage() {
   // 处理删除类目
   const handleDeleteCategory = async (id: string) => {
     try {
-      const success = deleteCategory(id);
+      const success = await deleteCategory(id);
       
       if (success) {
         // 更新本地状态

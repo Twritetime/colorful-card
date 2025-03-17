@@ -13,7 +13,7 @@ export default function NewCategoryPage() {
     setIsSubmitting(true);
     try {
       // 创建新类目
-      const newCategory = createCategory(categoryData);
+      const newCategory = await createCategory(categoryData);
       
       // 显示成功消息
       alert('类目创建成功！');

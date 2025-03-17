@@ -26,8 +26,8 @@ export default function ProductsPage() {
         // 只显示已发布的产品
         setProducts(productData.filter(p => p.published));
         
-        // 获取类目数据
-        const categoryData = getAllCategories();
+        // 获取类目数据（异步）
+        const categoryData = await getAllCategories();
         setCategories(categoryData);
       } catch (error) {
         console.error("获取数据失败:", error);
