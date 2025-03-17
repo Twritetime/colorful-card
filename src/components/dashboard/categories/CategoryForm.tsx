@@ -183,9 +183,9 @@ export default function CategoryForm({
                 }));
               }}
             >
-              <option value="">无父类目（顶级类目）</option>
+              <option key="no-parent" value="">无父类目（顶级类目）</option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>
+                <option key={category.id || category._id} value={category.id || category._id}>
                   {category.name}
                 </option>
               ))}

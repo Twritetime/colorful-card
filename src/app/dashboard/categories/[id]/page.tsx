@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCategory, updateCategory } from '@/lib/categoryService';
 import CategoryForm from '@/components/dashboard/categories/CategoryForm';
+import { use } from 'react';
 
 interface EditCategoryPageProps {
   params: {
@@ -13,6 +14,10 @@ interface EditCategoryPageProps {
 
 export default function EditCategoryPage({ params }: EditCategoryPageProps) {
   const router = useRouter();
+  // 使用React.use()解包params
+  const unwrappedParams = use(params);
+  const { id } = unwrappedParams;
+  
   const [category, setCategory] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +28,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const categoryData = await getCategory(params.id);
+        const categoryData = await getCategory(id);
         if (categoryData) {
           setCategory(categoryData);
         } else {
@@ -38,14 +43,14 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
     };
     
     fetchData();
-  }, [params.id]);
+  }, [id]);
 
   // 处理更新类目
   const handleUpdateCategory = async (categoryData: any) => {
     setIsSubmitting(true);
     try {
       // 更新类目
-      const updatedCategory = await updateCategory(params.id, categoryData);
+      const updatedCategory = await updateCategory(id, categoryData);
       
       // 显示成功消息
       alert('类目更新成功！');
