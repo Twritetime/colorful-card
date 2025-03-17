@@ -152,12 +152,12 @@ export default function Home() {
             </div>
             <div className="relative rounded-lg overflow-hidden shadow-xl">
               <div className="aspect-[16/9]">
-                <Image 
+        <Image
                   src="https://gcore.jsdelivr.net/gh/Twritetime/Images-0@main/blog-writetime/20250308220406915.png" 
                   alt="彩卡产品展示" 
                   fill
                   className="object-cover"
-                  priority
+          priority
                   unoptimized={true}
                 />
               </div>
@@ -221,7 +221,7 @@ export default function Home() {
                 className="group relative overflow-hidden rounded-lg shadow-md"
               >
                 <div className="aspect-[4/3] relative">
-                  <Image 
+            <Image
                     src={category.image} 
                     alt={category.title} 
                     fill
