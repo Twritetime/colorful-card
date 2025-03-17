@@ -18,20 +18,25 @@ export default function ProductsPage() {
 
   // 从productService获取产品数据和类目数据
   useEffect(() => {
-    try {
-      // 获取产品数据
-      const productData = getAllProducts();
-      // 只显示已发布的产品
-      setProducts(productData.filter(p => p.published));
-      
-      // 获取类目数据
-      const categoryData = getAllCategories();
-      setCategories(categoryData);
-    } catch (error) {
-      console.error("获取数据失败:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // 获取产品数据（异步）
+        const productData = await getAllProducts();
+        // 只显示已发布的产品
+        setProducts(productData.filter(p => p.published));
+        
+        // 获取类目数据
+        const categoryData = getAllCategories();
+        setCategories(categoryData);
+      } catch (error) {
+        console.error("获取数据失败:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   // 过滤产品

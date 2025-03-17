@@ -1,6 +1,7 @@
 // 产品类目数据类型定义
 export interface Category {
-  id: string;
+  id?: string; // 使用MongoDB时，这将是_id
+  _id?: string; // MongoDB的ID
   name: string;
   slug: string;
   description: string;
@@ -8,11 +9,148 @@ export interface Category {
   image?: string;
   parentId?: string | null;
   order: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-// 初始演示数据
+// API基础URL
+const API_BASE_URL = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_API_BASE_URL || '';
+
+// 获取单个类目
+export const getCategory = async (id: string): Promise<Category | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/categories/${id}`);
+    
+    if (!response.ok) {
+      console.error('获取类目失败:', response.statusText);
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('获取类目出错:', error);
+    return null;
+  }
+};
+
+// 获取所有类目
+export const getAllCategories = async (): Promise<Category[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/categories`);
+    
+    if (!response.ok) {
+      console.error('获取所有类目失败:', response.statusText);
+      // 如果API尚未实现，返回初始数据
+      return initialCategories;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : [];
+  } catch (error) {
+    console.error('获取所有类目出错:', error);
+    // 在API调用失败时，使用初始数据作为备用
+    return initialCategories;
+  }
+};
+
+// 创建新类目
+export const createCategory = async (categoryData: Omit<Category, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Category | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(categoryData),
+    });
+    
+    if (!response.ok) {
+      console.error('创建类目失败:', response.statusText);
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('创建类目出错:', error);
+    return null;
+  }
+};
+
+// 更新类目
+export const updateCategory = async (id: string, categoryData: Partial<Category>): Promise<Category | null> => {
+  try {
+    // 确保不传递_id字段，避免MongoDB更新错误
+    const { _id, ...updateData } = categoryData;
+    
+    const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData),
+    });
+    
+    if (!response.ok) {
+      console.error('更新类目失败:', response.statusText);
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('更新类目出错:', error);
+    return null;
+  }
+};
+
+// 删除类目
+export const deleteCategory = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      console.error('删除类目失败:', response.statusText);
+      return false;
+    }
+    
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error('删除类目出错:', error);
+    return false;
+  }
+};
+
+// 根据父类目ID获取子类目
+export const getCategoriesByParent = async (parentId: string | null): Promise<Category[]> => {
+  try {
+    const allCategories = await getAllCategories();
+    return allCategories.filter(category => category.parentId === parentId);
+  } catch (error) {
+    console.error('获取子类目失败:', error);
+    return [];
+  }
+};
+
+// 获取类目树结构
+export const getCategoryTree = async (): Promise<Category[]> => {
+  try {
+    const allCategories = await getAllCategories();
+    const rootCategories = allCategories.filter(category => !category.parentId);
+    
+    // 按order排序
+    return rootCategories.sort((a, b) => a.order - b.order);
+  } catch (error) {
+    console.error('获取类目树失败:', error);
+    return [];
+  }
+};
+
+// 初始演示数据 - 当API不可用时使用
 const initialCategories: Category[] = [
   {
     id: "business",
@@ -62,110 +200,4 @@ const initialCategories: Category[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
-];
-
-// 从localStorage获取所有类目数据，如果没有则使用初始演示数据
-const getCategories = (): Category[] => {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  const storedCategories = localStorage.getItem("categories");
-  if (!storedCategories) {
-    // 首次使用，存储初始数据
-    localStorage.setItem("categories", JSON.stringify(initialCategories));
-    return initialCategories;
-  }
-
-  return JSON.parse(storedCategories);
-};
-
-// 保存所有类目数据到localStorage
-const saveCategories = (categories: Category[]): void => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  localStorage.setItem("categories", JSON.stringify(categories));
-};
-
-// 获取单个类目
-export const getCategory = (id: string): Category | null => {
-  const categories = getCategories();
-  return categories.find(category => category.id === id) || null;
-};
-
-// 获取所有类目
-export const getAllCategories = (): Category[] => {
-  return getCategories();
-};
-
-// 创建新类目
-export const createCategory = (categoryData: Omit<Category, "id" | "createdAt" | "updatedAt">): Category => {
-  const categories = getCategories();
-  
-  // 生成新ID（实际应用中应使用更健壮的UUID生成方法）
-  const id = categoryData.slug.toLowerCase().replace(/\s+/g, '-');
-  
-  const now = new Date().toISOString();
-  const newCategory: Category = {
-    ...categoryData,
-    id,
-    createdAt: now,
-    updatedAt: now,
-  };
-  
-  categories.push(newCategory);
-  saveCategories(categories);
-  
-  return newCategory;
-};
-
-// 更新类目
-export const updateCategory = (id: string, categoryData: Partial<Category>): Category | null => {
-  const categories = getCategories();
-  const index = categories.findIndex(category => category.id === id);
-  
-  if (index === -1) {
-    return null;
-  }
-  
-  // 更新类目数据
-  const updatedCategory = {
-    ...categories[index],
-    ...categoryData,
-    updatedAt: new Date().toISOString(),
-  };
-  
-  categories[index] = updatedCategory;
-  saveCategories(categories);
-  
-  return updatedCategory;
-};
-
-// 删除类目
-export const deleteCategory = (id: string): boolean => {
-  const categories = getCategories();
-  const newCategories = categories.filter(category => category.id !== id);
-  
-  if (newCategories.length === categories.length) {
-    return false; // 没有找到类目
-  }
-  
-  saveCategories(newCategories);
-  return true;
-};
-
-// 根据父类目ID获取子类目
-export const getCategoriesByParent = (parentId: string | null): Category[] => {
-  const categories = getCategories();
-  return categories.filter(category => category.parentId === parentId);
-};
-
-// 获取类目树结构
-export const getCategoryTree = (): Category[] => {
-  const categories = getCategories();
-  const rootCategories = categories.filter(category => !category.parentId);
-  
-  // 按order排序
-  return rootCategories.sort((a, b) => a.order - b.order);
-}; 
+]; 

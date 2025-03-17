@@ -24,22 +24,28 @@ export default function ProductsPage() {
 
   useEffect(() => {
     // 获取所有产品数据
-    try {
-      const productsData = getAllProducts();
-      setProducts(productsData);
-      
-      // 获取所有类目并转换为对象，方便查找
-      const categoriesData = getAllCategories();
-      const categoriesMap = categoriesData.reduce((acc, category) => {
-        acc[category.id] = category;
-        return acc;
-      }, {} as {[key: string]: Category});
-      setCategories(categoriesMap);
-    } catch (error) {
-      console.error("获取数据失败:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // 异步获取产品数据
+        const productsData = await getAllProducts();
+        setProducts(productsData);
+        
+        // 异步获取所有类目
+        const categoriesData = await getAllCategories();
+        const categoriesMap = categoriesData.reduce((acc, category) => {
+          acc[category.id as string] = category;
+          return acc;
+        }, {} as {[key: string]: Category});
+        setCategories(categoriesMap);
+      } catch (error) {
+        console.error("获取数据失败:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   const handleAddProduct = () => {
