@@ -27,45 +27,71 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [category, setCategory] = useState<Category | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { t } = useLanguage();
 
   // 获取产品数据
   useEffect(() => {
-    const fetchProduct = () => {
+    const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const productData = getProduct(id);
         
-        if (!productData) {
-          // 如果产品不存在，重定向到产品列表页
-          alert('产品不存在');
-          router.push('/products');
+        // 检查ID是否有效
+        if (!id || id === 'undefined') {
+          console.error('无效的产品ID:', id);
+          setError('无效的产品ID');
+          setIsLoading(false);
           return;
         }
         
-        setProduct(productData);
+        console.log(`尝试获取产品详情，ID: ${id}`);
+        const productData = await getProduct(id);
         
-        // 获取产品类目数据
-        if (productData.category) {
-          const categoryData = getCategory(productData.category);
-          setCategory(categoryData);
+        if (!productData) {
+          // 如果产品不存在，设置错误
+          console.error('产品不存在');
+          setError('抱歉，找不到该产品');
+          setIsLoading(false);
+          return;
         }
         
-        // 获取相关产品（同一类别的其他产品）
-        const allProducts = getAllProducts()
-          .filter(p => p.published && p.id !== id && p.category === productData.category)
-          .slice(0, 3); // 限制最多显示3个相关产品
+        // 产品数据获取成功
+        setProduct(productData);
         
-        setRelatedProducts(allProducts);
+        // 获取产品类目
+        try {
+          if (productData.category) {
+            const categoryData = await getCategory(productData.category);
+            setCategory(categoryData);
+          }
+        } catch (categoryError) {
+          console.error('获取类别信息失败:', categoryError);
+          // 不会中断主流程
+        }
+        
+        // 获取相关产品
+        try {
+          const allProducts = await getAllProducts();
+          // 过滤出相同类别的产品，但排除当前产品
+          const related = allProducts
+            .filter(p => p.category === productData.category && p.id !== id)
+            .slice(0, 4); // 最多显示4个相关产品
+          setRelatedProducts(related);
+        } catch (relatedError) {
+          console.error('获取相关产品失败:', relatedError);
+          // 不会中断主流程
+        }
+        
+        setIsLoading(false);
       } catch (error) {
-        console.error('获取产品失败:', error);
-      } finally {
+        console.error('获取产品数据失败:', error);
+        setError(`获取产品数据失败: ${error.message || '未知错误'}`);
         setIsLoading(false);
       }
     };
-
+    
     fetchProduct();
-  }, [id, router]);
+  }, [id]);
 
   // 获取类目名称
   const getCategoryName = () => {
@@ -98,6 +124,17 @@ export default function ProductPage({ params }: ProductPageProps) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center">
         <p>{t('products.loading')}</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Link href="/products" className="text-primary hover:underline mt-4 inline-block">
+          {t('product.back')}
+        </Link>
       </div>
     );
   }

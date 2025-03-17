@@ -18,19 +18,33 @@ const API_BASE_URL = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLI
 
 // 获取单个产品
 export const getProduct = async (id: string): Promise<Product | null> => {
+  // 检查ID是否有效
+  if (!id || id === 'undefined') {
+    console.error('获取产品失败: 无效的产品ID:', id);
+    throw new Error('无效的产品ID');
+  }
+
   try {
+    console.log(`正在获取产品，ID: ${id}`);
     const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
     
     if (!response.ok) {
-      console.error('获取产品失败:', response.statusText);
-      return null;
+      const errorText = await response.text();
+      console.error(`获取产品失败: ${response.status} ${response.statusText}`, errorText);
+      throw new Error(response.statusText || `HTTP错误 ${response.status}`);
     }
     
     const result = await response.json();
-    return result.success ? result.data : null;
+    
+    if (!result.success) {
+      console.error('API返回错误:', result.message);
+      throw new Error(result.message || '获取产品失败');
+    }
+    
+    return result.data;
   } catch (error) {
     console.error('获取产品出错:', error);
-    return null;
+    throw error;
   }
 };
 

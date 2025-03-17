@@ -27,31 +27,55 @@ export default function ProductPage({ params }: ProductPageProps) {
     published: false,
     images: [] as string[]
   });
+  const [error, setError] = useState<string | null>(null);
 
   // 获取产品数据和类目数据
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true);
       try {
+        // 检查ID是否有效
+        if (!params.id || params.id === 'undefined') {
+          setError('无效的产品ID');
+          setIsLoading(false);
+          return;
+        }
+
+        console.log(`尝试获取产品，ID: ${params.id}`);
+        
         // 获取产品数据
-        const productData = await getProduct(params.id);
-        if (productData) {
-          setProduct(productData);
-          setFormData({
-            name: productData.name,
-            description: productData.description || '',
-            price: productData.price.toString(),
-            category: productData.category || '',
-            stock: productData.stock.toString(),
-            published: productData.published,
-            images: productData.images || []
-          });
+        try {
+          const productData = await getProduct(params.id);
+          if (productData) {
+            setProduct(productData);
+            setFormData({
+              name: productData.name,
+              description: productData.description || '',
+              price: productData.price.toString(),
+              category: productData.category || '',
+              stock: productData.stock.toString(),
+              published: productData.published,
+              images: productData.images || []
+            });
+          } else {
+            setError('找不到该产品');
+          }
+        } catch (productError) {
+          console.error('获取产品数据失败:', productError);
+          setError(`获取产品数据失败: ${productError.message || '未知错误'}`);
         }
         
         // 获取所有类目
-        const categoriesData = await getAllCategories();
-        setCategories(categoriesData);
+        try {
+          const categoriesData = await getAllCategories();
+          setCategories(categoriesData);
+        } catch (categoriesError) {
+          console.error('获取类目数据失败:', categoriesError);
+          // 不会中止流程，只记录错误
+        }
       } catch (error) {
         console.error('获取数据失败:', error);
+        setError(`获取数据失败: ${error.message || '未知错误'}`);
       } finally {
         setIsLoading(false);
       }
@@ -136,7 +160,11 @@ export default function ProductPage({ params }: ProductPageProps) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center justify-center h-64">
-          <p className="text-lg">加载中...</p>
+          {error ? (
+            <p className="text-lg text-red-500 mb-4">{error}</p>
+          ) : (
+            <p className="text-lg">加载中...</p>
+          )}
         </div>
       </div>
     );
