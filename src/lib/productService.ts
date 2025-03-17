@@ -87,6 +87,18 @@ export const getAllProducts = (): Product[] => {
   return getProducts();
 };
 
+// 添加触发部署的函数
+const triggerRedeploy = async () => {
+  if (typeof window === 'undefined') return; // 仅在客户端执行
+  
+  try {
+    await fetch('/api/redeploy');
+    console.log('Deployment triggered after product data change');
+  } catch (error) {
+    console.error('Failed to trigger deployment:', error);
+  }
+};
+
 // 创建新产品
 export const createProduct = (productData: Omit<Product, "id" | "createdAt" | "updatedAt">): Product => {
   const products = getProducts();
@@ -104,6 +116,9 @@ export const createProduct = (productData: Omit<Product, "id" | "createdAt" | "u
   
   products.push(newProduct);
   saveProducts(products);
+  
+  // 触发重新部署
+  triggerRedeploy();
   
   return newProduct;
 };
@@ -127,6 +142,9 @@ export const updateProduct = (id: string, productData: Partial<Product>): Produc
   products[index] = updatedProduct;
   saveProducts(products);
   
+  // 触发重新部署
+  triggerRedeploy();
+  
   return updatedProduct;
 };
 
@@ -140,5 +158,9 @@ export const deleteProduct = (id: string): boolean => {
   }
   
   saveProducts(newProducts);
+  
+  // 触发重新部署
+  triggerRedeploy();
+  
   return true;
 }; 
