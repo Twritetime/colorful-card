@@ -14,7 +14,9 @@ export async function GET(
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    // 需要先await params对象
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     
     if (!id || id === 'undefined') {
       return NextResponse.json(
@@ -50,7 +52,9 @@ export async function PUT(
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    // 需要先await params对象
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     
     if (!id || id === 'undefined') {
       return NextResponse.json(
@@ -107,7 +111,9 @@ export async function DELETE(
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    // 需要先await params对象
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     
     if (!id || id === 'undefined') {
       return NextResponse.json(

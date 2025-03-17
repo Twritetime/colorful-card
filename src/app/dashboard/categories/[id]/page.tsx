@@ -48,9 +48,18 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
   // 处理更新类目
   const handleUpdateCategory = async (categoryData: any) => {
     setIsSubmitting(true);
+    setError(null); // 清除之前的错误
+    
     try {
+      console.log('提交更新类别请求，ID:', id);
+      console.log('类别数据:', categoryData);
+      
       // 更新类目
       const updatedCategory = await updateCategory(id, categoryData);
+      
+      if (!updatedCategory) {
+        throw new Error('更新失败，未收到有效的返回数据');
+      }
       
       // 显示成功消息
       alert('类目更新成功！');
@@ -59,7 +68,9 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
       router.push('/dashboard/categories');
     } catch (error) {
       console.error('更新类目失败:', error);
-      alert('更新类目失败，请重试');
+      const errorMessage = error instanceof Error ? error.message : '更新类目失败，请重试';
+      setError(errorMessage);
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

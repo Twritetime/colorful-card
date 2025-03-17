@@ -14,7 +14,9 @@ export async function GET(
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    // 需要先await params对象
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     
     if (!id || id === 'undefined') {
       return NextResponse.json(
@@ -50,7 +52,9 @@ export async function PUT(
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    // 需要先await params对象
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     
     if (!id || id === 'undefined') {
       return NextResponse.json(
@@ -61,7 +65,7 @@ export async function PUT(
     
     const updateData = await request.json();
     
-    // 确保更新时间
+    // 确保更新时间是最新的
     updateData.updatedAt = new Date();
     
     const product = await Product.findByIdAndUpdate(
@@ -77,13 +81,13 @@ export async function PUT(
       );
     }
     
-    // 触发Vercel部署钩子，确保前端显示最新数据
     try {
-      const DEPLOY_HOOK_URL = 'https://api.vercel.com/v1/integrations/deploy/prj_EeVz83Ew8k82vyl9uRKGX2fWYCqs/NSM7Z5B7wm';
-      await fetch(DEPLOY_HOOK_URL, { method: 'POST' });
+      const DEPLOY_HOOK_URL = process.env.VERCEL_DEPLOY_HOOK_URL;
+      if (DEPLOY_HOOK_URL) {
+        await fetch(DEPLOY_HOOK_URL, { method: 'POST' });
+      }
     } catch (deployError) {
       console.warn('触发部署钩子失败:', deployError);
-      // 继续处理，不影响API响应
     }
     
     return NextResponse.json({ success: true, data: product });
@@ -104,7 +108,9 @@ export async function DELETE(
   try {
     await connectToDatabase();
     
-    const id = params.id;
+    // 需要先await params对象
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
     
     if (!id || id === 'undefined') {
       return NextResponse.json(
@@ -122,13 +128,13 @@ export async function DELETE(
       );
     }
     
-    // 触发Vercel部署钩子，确保前端显示最新数据
     try {
-      const DEPLOY_HOOK_URL = 'https://api.vercel.com/v1/integrations/deploy/prj_EeVz83Ew8k82vyl9uRKGX2fWYCqs/NSM7Z5B7wm';
-      await fetch(DEPLOY_HOOK_URL, { method: 'POST' });
+      const DEPLOY_HOOK_URL = process.env.VERCEL_DEPLOY_HOOK_URL;
+      if (DEPLOY_HOOK_URL) {
+        await fetch(DEPLOY_HOOK_URL, { method: 'POST' });
+      }
     } catch (deployError) {
       console.warn('触发部署钩子失败:', deployError);
-      // 继续处理，不影响API响应
     }
     
     return NextResponse.json(

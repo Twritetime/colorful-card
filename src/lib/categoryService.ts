@@ -81,8 +81,11 @@ export const createCategory = async (categoryData: Omit<Category, "id" | "_id" |
 // 更新类目
 export const updateCategory = async (id: string, categoryData: Partial<Category>): Promise<Category | null> => {
   try {
-    // 确保不传递_id字段，避免MongoDB更新错误
-    const { _id, ...updateData } = categoryData;
+    // 确保数据中不包含_id字段，避免MongoDB更新错误
+    const { _id, id: dataId, ...updateData } = categoryData as any;
+    
+    console.log('准备更新类别，ID:', id);
+    console.log('更新数据:', JSON.stringify(updateData));
     
     const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
       method: 'PUT',
@@ -93,15 +96,17 @@ export const updateCategory = async (id: string, categoryData: Partial<Category>
     });
     
     if (!response.ok) {
-      console.error('更新类目失败:', response.statusText);
-      return null;
+      const errorText = await response.text();
+      console.error('更新类目失败:', response.status, response.statusText, errorText);
+      throw new Error(`更新类目失败: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const result = await response.json();
+    console.log('类别更新成功:', result);
     return result.success ? result.data : null;
   } catch (error) {
     console.error('更新类目出错:', error);
-    return null;
+    throw error; // 将错误向上传递，而不是仅返回null
   }
 };
 
