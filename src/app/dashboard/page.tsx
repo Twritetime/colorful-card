@@ -1,3 +1,5 @@
+"use client";
+
 import { getServerSession } from "next-auth/next";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import {
@@ -6,6 +8,7 @@ import {
   CubeIcon,
   ChatBubbleLeftRightIcon,
 } from "@heroicons/react/24/outline";
+import RedeployButton from "@/components/dashboard/RedeployButton";
 
 export default async function DashboardPage() {
   const session = await getServerSession();
@@ -79,6 +82,8 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <RedeployButton />
     </div>
   );
 } 

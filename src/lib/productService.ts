@@ -1,6 +1,7 @@
 // 产品数据类型定义
 export interface Product {
-  id: string;
+  id?: string; // 使用MongoDB时，这将是_id
+  _id?: string; // MongoDB的ID
   name: string;
   description: string;
   price: number;
@@ -12,155 +13,112 @@ export interface Product {
   updatedAt: string;
 }
 
-// 初始演示数据
-const initialProducts: Product[] = [
-  {
-    id: "1",
-    name: "高级名片",
-    description: "高质量定制设计名片",
-    price: 49.99,
-    category: "business",
-    stock: 100,
-    published: true,
-    images: ["https://images.unsplash.com/photo-1572502007796-bf53841bc530"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "豪华礼品卡",
-    description: "特殊场合的精美礼品卡",
-    price: 29.99,
-    category: "gift",
-    stock: 200,
-    published: true,
-    images: ["https://images.unsplash.com/photo-1607344645866-009c320b63e0"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    name: "企业贺卡",
-    description: "用于商务沟通的专业贺卡",
-    price: 19.99,
-    category: "greeting",
-    stock: 150,
-    published: true,
-    images: ["https://images.unsplash.com/photo-1512909006721-3d6018887383"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-// 从localStorage获取所有产品数据，如果没有则使用初始演示数据
-const getProducts = (): Product[] => {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  const storedProducts = localStorage.getItem("products");
-  if (!storedProducts) {
-    // 首次使用，存储初始数据
-    localStorage.setItem("products", JSON.stringify(initialProducts));
-    return initialProducts;
-  }
-
-  return JSON.parse(storedProducts);
-};
-
-// 保存所有产品数据到localStorage
-const saveProducts = (products: Product[]): void => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  localStorage.setItem("products", JSON.stringify(products));
-};
+// API基础URL
+const API_BASE_URL = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 // 获取单个产品
-export const getProduct = (id: string): Product | null => {
-  const products = getProducts();
-  return products.find(product => product.id === id) || null;
+export const getProduct = async (id: string): Promise<Product | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
+    
+    if (!response.ok) {
+      console.error('获取产品失败:', response.statusText);
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('获取产品出错:', error);
+    return null;
+  }
 };
 
 // 获取所有产品
-export const getAllProducts = (): Product[] => {
-  return getProducts();
-};
-
-// 添加触发部署的函数
-const triggerRedeploy = async () => {
-  if (typeof window === 'undefined') return; // 仅在客户端执行
-  
+export const getAllProducts = async (): Promise<Product[]> => {
   try {
-    await fetch('/api/redeploy');
-    console.log('Deployment triggered after product data change');
+    const response = await fetch(`${API_BASE_URL}/api/products`);
+    
+    if (!response.ok) {
+      console.error('获取所有产品失败:', response.statusText);
+      return [];
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : [];
   } catch (error) {
-    console.error('Failed to trigger deployment:', error);
+    console.error('获取所有产品出错:', error);
+    return [];
   }
 };
 
 // 创建新产品
-export const createProduct = (productData: Omit<Product, "id" | "createdAt" | "updatedAt">): Product => {
-  const products = getProducts();
-  
-  // 生成新ID（实际应用中应使用更健壮的UUID生成方法）
-  const newId = (Math.max(0, ...products.map(p => parseInt(p.id))) + 1).toString();
-  
-  const now = new Date().toISOString();
-  const newProduct: Product = {
-    ...productData,
-    id: newId,
-    createdAt: now,
-    updatedAt: now,
-  };
-  
-  products.push(newProduct);
-  saveProducts(products);
-  
-  // 触发重新部署
-  triggerRedeploy();
-  
-  return newProduct;
+export const createProduct = async (productData: Omit<Product, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Product | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/products`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(productData),
+    });
+    
+    if (!response.ok) {
+      console.error('创建产品失败:', response.statusText);
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('创建产品出错:', error);
+    return null;
+  }
 };
 
 // 更新产品
-export const updateProduct = (id: string, productData: Partial<Product>): Product | null => {
-  const products = getProducts();
-  const index = products.findIndex(product => product.id === id);
-  
-  if (index === -1) {
+export const updateProduct = async (id: string, productData: Partial<Product>): Promise<Product | null> => {
+  try {
+    // 确保不传递_id字段，避免MongoDB更新错误
+    const { _id, ...updateData } = productData;
+    
+    const response = await fetch(`${API_BASE_URL}/api/products/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateData),
+    });
+    
+    if (!response.ok) {
+      console.error('更新产品失败:', response.statusText);
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.success ? result.data : null;
+  } catch (error) {
+    console.error('更新产品出错:', error);
     return null;
   }
-  
-  // 更新产品数据
-  const updatedProduct = {
-    ...products[index],
-    ...productData,
-    updatedAt: new Date().toISOString(),
-  };
-  
-  products[index] = updatedProduct;
-  saveProducts(products);
-  
-  // 触发重新部署
-  triggerRedeploy();
-  
-  return updatedProduct;
 };
 
 // 删除产品
-export const deleteProduct = (id: string): boolean => {
-  const products = getProducts();
-  const newProducts = products.filter(product => product.id !== id);
-  
-  if (newProducts.length === products.length) {
-    return false; // 没有找到产品
+export const deleteProduct = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/products/${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      console.error('删除产品失败:', response.statusText);
+      return false;
+    }
+    
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error('删除产品出错:', error);
+    return false;
   }
-  
-  saveProducts(newProducts);
-  
-  // 触发重新部署
-  triggerRedeploy();
-  
-  return true;
 }; 

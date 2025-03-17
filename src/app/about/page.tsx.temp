@@ -1,0 +1,252 @@
+﻿import Image from "next/image";
+import Link from "next/link";
+
+export default function AboutPage() {
+  // 鍏徃鍘嗗彶閲岀▼纰?  const timeline = [
+    { year: "2010", title: "鎴愮珛", description: "娣卞湷褰╁崱鍏徃鍦ㄤ腑鍥芥繁鍦虫垚绔嬶紝涓撴敞浜庡晢鍔″嵃鍒烽鍩? },
+    { year: "2012", title: "鎵╁睍浜у搧绾?, description: "鎵╁ぇ鐢熶骇绾匡紝澧炲姞璐哄崱銆佺ぜ鍝佸崱鍜屽寘瑁呬骇鍝? },
+    { year: "2015", title: "鎶€鏈崌绾?, description: "寮曡繘鍏堣繘鍗板埛璁惧锛屾彁楂樼敓浜ф晥鐜囧拰浜у搧璐ㄩ噺" },
+    { year: "2018", title: "鍥介檯鍖?, description: "寮€濮嬫嫇灞曟捣澶栧競鍦猴紝鎻愪緵鍏ㄧ悆閿€鍞拰鏈嶅姟" },
+    { year: "2021", title: "鏁板瓧鍖栬浆鍨?, description: "鎺ㄥ嚭鍦ㄧ嚎瀹氬埗骞冲彴锛岀畝鍖栧鎴蜂笅鍗曟祦绋? },
+    { year: "2023", title: "鍙寔缁彂灞?, description: "寮曞叆鐜繚鏉愭枡鍜岀敓浜у伐鑹猴紝鍑忓皯鐜褰卞搷" },
+  ];
+  
+  // 鍥㈤槦鎴愬憳
+  const team = [
+    {
+      name: "寮犱紵",
+      position: "鍒涘浜哄吋CEO",
+      description: "鎷ユ湁20骞村嵃鍒疯涓氱粡楠岋紝璐熻矗鍏徃鎴樼暐瑙勫垝鍜屼笟鍔℃嫇灞?,
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
+    },
+    {
+      name: "鏉庡",
+      position: "璁捐鎬荤洃",
+      description: "鐭ュ悕璁捐瀛﹂櫌姣曚笟锛屾浘鏈嶅姟澶氬鍥介檯鍝佺墝锛岃礋璐ｄ骇鍝佽璁″拰鍒涙剰鏂瑰悜",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
+    },
+    {
+      name: "鐜嬪己",
+      position: "鐢熶骇缁忕悊",
+      description: "鍗板埛宸ョ▼涓撲笟鑳屾櫙锛岀簿閫氬悇绫诲嵃鍒峰伐鑹哄拰璐ㄩ噺鎺у埗娴佺▼",
+      image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
+    },
+    {
+      name: "璧佃姵",
+      position: "鍥介檯閿€鍞€荤洃",
+      description: "绮鹃€氫笁鍥借瑷€锛岃礋璐ｆ捣澶栧競鍦哄紑鍙戝拰瀹㈡埛鍏崇郴绠＄悊",
+      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80",
+    },
+  ];
+  
+  // 鑽ｈ獕鍜岃璇?  const certifications = [
+    { name: "ISO 9001:2015", description: "璐ㄩ噺绠＄悊浣撶郴璁よ瘉" },
+    { name: "ISO 14001:2015", description: "鐜绠＄悊浣撶郴璁よ瘉" },
+    { name: "FSC璁よ瘉", description: "妫灄绠＄悊濮斿憳浼氳璇侊紝纭繚浣跨敤鍙寔缁噰璐殑绾稿紶" },
+    { name: "娣卞湷甯備紭绉€浼佷笟", description: "杩炵画涓夊勾鑾峰緱娣卞湷甯備紭绉€浼佷笟绉板彿" },
+    { name: "楂樻柊鎶€鏈紒涓?, description: "鑾峰緱鍥藉楂樻柊鎶€鏈紒涓氳瀹? },
+    { name: "鍗板埛琛屼笟鍗忎細鎴愬憳", description: "涓浗鍗板埛鎶€鏈崗浼氱悊浜嬪崟浣? },
+  ];
+
+  return (
+    <div className="container mx-auto px-4 py-8 md:py-16">
+      {/* 鍏徃绠€浠?*/}
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold mb-4">鍏充簬鎴戜滑</h1>
+        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          娣卞湷褰╁崱鍏徃鎴愮珛浜?010骞达紝鏄竴瀹朵笓涓氭彁渚涢珮鍝佽川鍗＄墖鍜屽寘瑁呰В鍐虫柟妗堢殑鍒堕€犲晢銆傛垜浠嚧鍔涗簬涓哄叏鐞冨鎴锋彁渚涘垱鏂般€佷紭璐ㄧ殑浜у搧鍜屾湇鍔°€?        </p>
+      </div>
+      
+      {/* 鍏徃浣垮懡鍜屾効鏅?*/}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+        <div className="relative h-80 md:h-full rounded-lg overflow-hidden">
+          <Image
+            src="https://images.unsplash.com/photo-1577401239170-897942555fb3"
+            alt="褰╁崱鍏徃宸ュ巶"
+            fill
+            className="object-cover"
+            unoptimized={true}
+          />
+        </div>
+        <div className="flex flex-col justify-center">
+          <h2 className="text-3xl font-bold mb-6">鎴戜滑鐨勪娇鍛戒笌鎰挎櫙</h2>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold mb-2">浣垮懡</h3>
+              <p className="text-muted-foreground">
+                閫氳繃浼樿川鐨勫崱鐗囧拰鍖呰浜у搧锛屽府鍔╀紒涓氬睍绀哄搧鐗屼环鍊硷紝澧炲己涓庡鎴风殑鎯呮劅鑱旂郴銆?              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-2">鎰挎櫙</h3>
+              <p className="text-muted-foreground">
+                鎴愪负鍏ㄧ悆棰嗗厛鐨勫崱鐗囧拰鍖呰瑙ｅ喅鏂规鎻愪緵鍟嗭紝浠ュ垱鏂拌璁″拰鍗撹秺鍝佽川璧㈠緱瀹㈡埛淇¤禆銆?              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-2">鏍稿績浠峰€艰</h3>
+              <p className="text-muted-foreground">
+                璐ㄩ噺鑷充笂銆佸鎴蜂负鍏堛€佸垱鏂伴┍鍔ㄣ€佺幆淇濊矗浠汇€佸洟闃熷崗浣溿€?              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* 鍏徃鍘嗗彶 */}
+      <div className="mb-20">
+        <h2 className="text-3xl font-bold text-center mb-12">鎴戜滑鐨勫巻鍙?/h2>
+        <div className="relative">
+          {/* 鏃堕棿绾?*/}
+          <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-border"></div>
+          
+          <div className="space-y-16">
+            {timeline.map((item, index) => (
+              <div key={index} className={`relative flex items-center ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                <div className={`absolute left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full bg-primary border-4 border-background z-10`}></div>
+                
+                <div className={`w-5/12 ${index % 2 === 0 ? 'text-right pr-10' : 'text-left pl-10'}`}>
+                  <div className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow">
+                    <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-md mb-2">
+                      {item.year}
+                    </span>
+                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* 鐢熶骇鑳藉姏 */}
+      <div className="mb-20">
+        <h2 className="text-3xl font-bold text-center mb-12">鐢熶骇鑳藉姏</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-card rounded-lg border border-border p-6 text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-3">鍏堣繘璁惧</h3>
+            <p className="text-muted-foreground mb-4">
+              閰嶅寰峰浗娴峰痉鍫″嵃鍒锋満銆佹棩鏈悊鍏夋暟鐮佸嵃鍒风郴缁熷拰鐟炲＋鍏ㄨ嚜鍔ㄥ悗閬撳伐搴忚澶囥€?            </p>
+            <ul className="text-sm text-muted-foreground text-left">
+              <li className="mb-1">鈥?6鑹茶兌鍗版満锛屾棩浜ц兘10涓囧紶</li>
+              <li className="mb-1">鈥?楂樼簿搴︽暟鐮佸嵃鍒凤紝閫傚悎灏忔壒閲忓畾鍒?/li>
+              <li className="mb-1">鈥?鑷姩妯″垏銆佸帇绾广€佺儷閲戣澶?/li>
+              <li>鈥?鏅鸿兘璐ㄦ绯荤粺锛岀‘淇濅骇鍝佸搧璐?/li>
+            </ul>
+          </div>
+          
+          <div className="bg-card rounded-lg border border-border p-6 text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-3">璐ㄩ噺鎺у埗</h3>
+            <p className="text-muted-foreground mb-4">
+              閲囩敤ISO 9001璐ㄩ噺绠＄悊浣撶郴锛屼粠鍘熸潗鏂欓噰璐埌鎴愬搧鍑哄巶瀹炴柦鍏ㄦ祦绋嬫帶鍒躲€?            </p>
+            <ul className="text-sm text-muted-foreground text-left">
+              <li className="mb-1">鈥?鍘熸潗鏂欐娴嬶紝纭繚鐜繚瀹夊叏</li>
+              <li className="mb-1">鈥?鍗板墠鏍″绯荤粺锛屽噺灏戝嵃鍒烽敊璇?/li>
+              <li className="mb-1">鈥?鍗板埛杩囩▼鐩戞帶锛屼繚璇佽壊褰╁噯纭?/li>
+              <li>鈥?鎴愬搧闅忔満鎶芥锛岀‘淇濆鎴锋弧鎰?/li>
+            </ul>
+          </div>
+          
+          <div className="bg-card rounded-lg border border-border p-6 text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-3">鍏ㄧ悆鐗╂祦</h3>
+            <p className="text-muted-foreground mb-4">
+              鎷ユ湁瀹屽杽鐨勫浗鍐呭鐗╂祦缃戠粶锛岀‘淇濅骇鍝佸噯鏃堕€佽揪瀹㈡埛鎵嬩腑銆?            </p>
+            <ul className="text-sm text-muted-foreground text-left">
+              <li className="mb-1">鈥?涓庡瀹跺浗闄呯墿娴佸叕鍙稿悎浣?/li>
+              <li className="mb-1">鈥?鎻愪緵绌鸿繍銆佹捣杩愮瓑澶氱杩愯緭鏂瑰紡</li>
+              <li className="mb-1">鈥?涓撲笟鍖呰锛岀‘淇濊繍杈撳畨鍏?/li>
+              <li>鈥?鍏ㄧ▼璺熻釜锛屽強鏃舵洿鏂扮墿娴佷俊鎭?/li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      {/* 鍥㈤槦浠嬬粛 */}
+      <div className="mb-20">
+        <h2 className="text-3xl font-bold text-center mb-12">鏍稿績鍥㈤槦</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {team.map((member, index) => (
+            <div key={index} className="bg-card rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
+              <div className="relative h-64">
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  width={300}
+                  height={300}
+                  className="w-24 h-24 rounded-full object-cover"
+                  unoptimized={true}
+                />
+              </div>
+              <div className="p-5">
+                <h3 className="text-xl font-bold mb-1">{member.name}</h3>
+                <p className="text-primary font-medium mb-3">{member.position}</p>
+                <p className="text-sm text-muted-foreground">{member.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* 鑽ｈ獕鍜岃璇?*/}
+      <div className="mb-20">
+        <h2 className="text-3xl font-bold text-center mb-12">鑽ｈ獕涓庤璇?/h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {certifications.map((cert, index) => (
+            <div key={index} className="bg-card rounded-lg border border-border p-5 hover:shadow-md transition-shadow">
+              <div className="flex items-start">
+                <div className="flex-shrink-0 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-semibold">{cert.name}</h3>
+                  <p className="text-muted-foreground">{cert.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* 宸ュ巶鍙傝 */}
+      <div className="bg-muted rounded-lg p-8 md:p-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">棰勭害宸ュ巶鍙傝</h2>
+            <p className="text-muted-foreground mb-6">
+              鎴戜滑娆㈣繋瀹㈡埛鏉ユ垜浠殑宸ュ巶鍙傝锛屼簡瑙ｄ骇鍝佺敓浜ф祦绋嬪拰璐ㄩ噺鎺у埗浣撶郴銆傛偍鍙互涓庢垜浠殑鍥㈤槦闈㈠闈氦娴侊紝鍏卞悓鎺㈣瀹氬埗鍖栬В鍐虫柟妗堛€?            </p>
+            <Link 
+              href="/contact" 
+              className="inline-flex items-center justify-center h-12 px-6 font-medium tracking-wide text-white transition duration-200 bg-primary rounded-lg hover:bg-primary/90 focus:outline-none"
+            >
+              棰勭害鍙傝
+            </Link>
+          </div>
+          <div className="relative h-64 rounded-lg overflow-hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1581093458791-9cd5083cc0be"
+              alt="宸ュ巶鍙傝"
+              fill
+              className="object-cover"
+              unoptimized={true}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+} 
