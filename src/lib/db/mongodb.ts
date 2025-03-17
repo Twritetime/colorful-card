@@ -9,7 +9,7 @@ if (!MONGODB_URI) {
 }
 
 // 声明一个全局变量mongoose用于保持连接实例
-let cached = global.mongoose;
+let cached: any = global.mongoose;
 
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
@@ -36,4 +36,8 @@ export async function connectToDatabase() {
   
   cached.conn = await cached.promise;
   return cached.conn;
-} 
+}
+
+// 为CommonJS导入添加兼容性
+// @ts-ignore
+module.exports = { connectToDatabase }; 

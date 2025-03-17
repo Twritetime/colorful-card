@@ -6,9 +6,9 @@
  * 2. 运行 npx ts-node src/scripts/seed-categories.ts
  */
 
-import mongoose from 'mongoose';
-import { connectToDatabase } from '../lib/db/mongodb';
-import Category from '../models/Category';
+const mongoose = require('mongoose');
+const { connectToDatabase } = require('../lib/db/mongodb');
+const Category = require('../models/Category').default;
 
 // 初始类别数据
 const initialCategories = [

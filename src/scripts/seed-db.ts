@@ -6,9 +6,9 @@
  * 2. 运行 npx ts-node src/scripts/seed-db.ts
  */
 
-import mongoose from 'mongoose';
-import { connectToDatabase } from '../lib/db/mongodb';
-import Product from '../models/Product';
+const mongoose = require('mongoose');
+const { connectToDatabase } = require('../lib/db/mongodb');
+const Product = require('../models/Product').default;
 
 // 初始产品数据
 const initialProducts = [

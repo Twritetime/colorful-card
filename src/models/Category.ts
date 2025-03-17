@@ -32,4 +32,10 @@ const CategorySchema: Schema = new Schema({
 
 // 根据环境初始化模型
 // 这样写是为了防止在Next.js开发模式下的热重载引起的模型重复定义错误
-export default mongoose.models.Category || mongoose.model<ICategory>('Category', CategorySchema); 
+const CategoryModel = mongoose.models.Category || mongoose.model<ICategory>('Category', CategorySchema);
+
+export default CategoryModel;
+
+// 为CommonJS导入添加兼容性
+// @ts-ignore
+module.exports = { default: CategoryModel }; 
