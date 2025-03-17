@@ -10,7 +10,15 @@ export async function GET(
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const id = params.id;
+    
+    if (!id || id === 'undefined') {
+      return NextResponse.json(
+        { success: false, message: '无效的产品ID' },
+        { status: 400 }
+      );
+    }
+    
     const product = await Product.findById(id);
     
     if (!product) {
@@ -38,7 +46,15 @@ export async function PUT(
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const id = params.id;
+    
+    if (!id || id === 'undefined') {
+      return NextResponse.json(
+        { success: false, message: '无效的产品ID' },
+        { status: 400 }
+      );
+    }
+    
     const updateData = await request.json();
     
     // 确保更新时间
@@ -84,7 +100,15 @@ export async function DELETE(
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const id = params.id;
+    
+    if (!id || id === 'undefined') {
+      return NextResponse.json(
+        { success: false, message: '无效的产品ID' },
+        { status: 400 }
+      );
+    }
+    
     const product = await Product.findByIdAndDelete(id);
     
     if (!product) {

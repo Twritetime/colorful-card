@@ -10,7 +10,15 @@ export async function GET(
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const id = params.id;
+    
+    if (!id || id === 'undefined') {
+      return NextResponse.json(
+        { success: false, message: '无效的类别ID' },
+        { status: 400 }
+      );
+    }
+    
     const category = await Category.findById(id);
     
     if (!category) {
@@ -38,15 +46,21 @@ export async function PUT(
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const id = params.id;
+    
+    if (!id || id === 'undefined') {
+      return NextResponse.json(
+        { success: false, message: '无效的类别ID' },
+        { status: 400 }
+      );
+    }
+    
     const updateData = await request.json();
     
-    // 确保slug格式正确
     if (updateData.slug) {
       updateData.slug = updateData.slug.toLowerCase().replace(/\s+/g, '-');
     }
     
-    // 确保更新时间
     updateData.updatedAt = new Date();
     
     const category = await Category.findByIdAndUpdate(
@@ -62,7 +76,6 @@ export async function PUT(
       );
     }
     
-    // 触发Vercel部署钩子，确保前端显示最新数据
     try {
       const DEPLOY_HOOK_URL = process.env.VERCEL_DEPLOY_HOOK_URL;
       if (DEPLOY_HOOK_URL) {
@@ -70,7 +83,6 @@ export async function PUT(
       }
     } catch (deployError) {
       console.warn('触发部署钩子失败:', deployError);
-      // 继续处理，不影响API响应
     }
     
     return NextResponse.json({ success: true, data: category });
@@ -91,7 +103,15 @@ export async function DELETE(
   try {
     await connectToDatabase();
     
-    const { id } = params;
+    const id = params.id;
+    
+    if (!id || id === 'undefined') {
+      return NextResponse.json(
+        { success: false, message: '无效的类别ID' },
+        { status: 400 }
+      );
+    }
+    
     const category = await Category.findByIdAndDelete(id);
     
     if (!category) {
@@ -101,7 +121,6 @@ export async function DELETE(
       );
     }
     
-    // 触发Vercel部署钩子，确保前端显示最新数据
     try {
       const DEPLOY_HOOK_URL = process.env.VERCEL_DEPLOY_HOOK_URL;
       if (DEPLOY_HOOK_URL) {
@@ -109,7 +128,6 @@ export async function DELETE(
       }
     } catch (deployError) {
       console.warn('触发部署钩子失败:', deployError);
-      // 继续处理，不影响API响应
     }
     
     return NextResponse.json(
