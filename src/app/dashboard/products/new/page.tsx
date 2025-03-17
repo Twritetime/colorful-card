@@ -19,6 +19,7 @@ export default function NewProductPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // 获取所有类目
   useEffect(() => {
@@ -71,14 +72,24 @@ export default function NewProductPage() {
         images: formData.images.length > 0 ? formData.images : ['https://placehold.co/600x400?text=产品图片']
       };
       
+      // 确保描述字段至少有一个字符
+      if (!productData.description || productData.description.trim() === '') {
+        productData.description = '暂无描述'; // 设置默认描述
+      }
+      
       // 创建产品
-      const newProduct = await createProduct(productData);
+      const product = await createProduct(productData);
+      
+      // 显示成功消息
+      alert('产品创建成功！');
       
       // 重定向到产品列表页
       router.push('/dashboard/products');
     } catch (error) {
       console.error('创建产品失败:', error);
-      alert('创建产品失败，请重试');
+      const errorMessage = error instanceof Error ? error.message : '创建产品失败，请重试';
+      setError(errorMessage);
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
