@@ -5,10 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-import { 
-  ChevronLeftIcon, 
-  CheckIcon
-} from "@heroicons/react/24/outline";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Product, getProduct, getAllProducts } from "@/lib/productService";
 import { Category, getCategory } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -85,7 +82,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         setIsLoading(false);
       } catch (error) {
         console.error('获取产品数据失败:', error);
-        setError(`获取产品数据失败: ${error.message || '未知错误'}`);
+        setError('加载产品时出错，请刷新页面重试');
         setIsLoading(false);
       }
     };
@@ -122,28 +119,22 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 flex justify-center">
-        <p>{t('products.loading')}</p>
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex justify-center items-center h-64">
+          <p className="text-lg">加载中...</p>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <p className="text-red-500 mb-4">{error}</p>
-        <Link href="/products" className="text-primary hover:underline mt-4 inline-block">
-          {t('product.back')}
-        </Link>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <p>{t('product.notFound')}</p>
-        <Link href="/products" className="text-primary hover:underline mt-4 inline-block">
+      <div className="container mx-auto py-6 px-4">
+        <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
+          <p>{error || '产品数据加载失败'}</p>
+        </div>
+        <Link href="/products" className="inline-flex items-center text-blue-600 hover:underline">
+          <ArrowLeftIcon className="h-4 w-4 mr-1" />
           {t('product.back')}
         </Link>
       </div>
@@ -158,130 +149,105 @@ export default function ProductPage({ params }: ProductPageProps) {
   const specs = getProductSpecs(product);
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-16">
-      {/* 返回链接 */}
-      <div className="mb-8">
-        <Link 
-          href="/products" 
-          className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          <ChevronLeftIcon className="w-4 h-4 mr-1" />
-          {t('product.back')}
-        </Link>
-      </div>
+    <div className="container mx-auto py-6 px-4">
+      <Link href="/products" className="inline-flex items-center text-blue-600 hover:underline mb-6">
+        <ArrowLeftIcon className="h-4 w-4 mr-1" />
+        {t('product.back')}
+      </Link>
       
-      {/* 产品详情 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* 产品图片 */}
-        <div>
-          <div className="relative h-96 md:h-[500px] rounded-lg overflow-hidden border border-border mb-4">
-            <Image
-              src={productImage}
-              alt={product.name}
-              width={600}
-              height={400}
-              className="rounded-lg object-cover w-full h-full"
-              unoptimized={true}
-            />
-          </div>
-          {product.images && product.images.length > 1 && (
-            <div className="flex space-x-4 overflow-x-auto pb-2">
-              {product.images.map((image, index) => (
-                <div
-                  key={index}
-                  className="relative h-20 w-20 rounded-md overflow-hidden border-2 border-border"
-                >
-                  <Image
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="rounded-lg object-cover w-full h-full"
-                    unoptimized={true}
-                  />
-                </div>
-              ))}
+        <div className="bg-white p-2 rounded-lg shadow overflow-hidden">
+          {product.images && product.images.length > 0 ? (
+            <div className="relative h-80 md:h-96">
+              <Image
+                src={product.images[0]}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
+                className="object-contain"
+              />
+            </div>
+          ) : (
+            <div className="relative h-80 md:h-96 bg-gray-100 flex items-center justify-center">
+              <p className="text-gray-400">无图片</p>
             </div>
           )}
         </div>
         
         {/* 产品信息 */}
         <div>
-          <div className="bg-primary/10 px-4 py-2 rounded-md text-primary text-sm font-medium inline-block mb-4">
-            {getCategoryName()}
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">{product.name}</h1>
-          <div className="flex items-baseline mb-6">
-            <span className="text-2xl font-bold text-primary">
-              ¥{product.price.toFixed(2)}
-            </span>
-            <span className="text-sm text-muted-foreground ml-2">
-              /单价
-            </span>
-          </div>
-          
-          <p className="text-muted-foreground mb-6">
-            {product.description}
-          </p>
-          
-          {/* 特点列表 */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-3">{t('product.features')}</h3>
-            <ul className="space-y-2">
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <CheckIcon className="h-5 w-5 text-primary mr-2 flex-shrink-0 mt-0.5" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          {/* 订购 */}
-          <div className="bg-card rounded-lg border border-border p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">{t('product.customize')}</h3>
-            <div className="flex items-center mb-6">
-              <span className="text-sm font-medium mr-4">{t('product.stock.status')}:</span>
-              <span className={`px-4 py-2 rounded-md ${product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                {product.stock > 0 ? t('product.stock.available') : t('product.stock.unavailable')}
+          <div className="mb-4">
+            {category && (
+              <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2">
+                {category.name}
               </span>
+            )}
+            <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
+            <div className="text-xl font-bold text-blue-600 mb-4">
+              ¥{product.price.toFixed(2)}
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link 
-                href="/contact" 
-                className="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90 text-center"
-              >
-                {t('product.getQuote')}
-              </Link>
-              <Link 
-                href="/contact" 
-                className="flex-1 border border-primary text-primary py-2 px-4 rounded-md hover:bg-primary/5 text-center"
-              >
-                {t('product.contact')}
-              </Link>
+            <div className="flex items-center mb-4">
+              <div className="mr-4">
+                <span className="text-sm font-medium">{t('product.stock.status')}: </span>
+                {product.stock > 0 ? (
+                  <span className="text-green-600">{t('product.stock.available')}</span>
+                ) : (
+                  <span className="text-red-600">{t('product.stock.unavailable')}</span>
+                )}
+              </div>
+              <div>
+                <span className="text-sm font-medium">ID: </span>
+                <span className="font-mono text-xs bg-gray-100 p-1 rounded">{product.id || product._id}</span>
+              </div>
             </div>
+            <p className="text-gray-600 mb-6">{product.description}</p>
           </div>
           
-          {/* 规格 */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4">{t('product.specs')}</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {Object.entries(specs).map(([key, value]) => (
-                <div key={key} className="flex flex-col">
-                  <span className="text-sm text-muted-foreground">{key}</span>
-                  <span className="font-medium">{value}</span>
-                </div>
-              ))}
-            </div>
+          <div className="space-y-4">
+            <button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+            >
+              {t('product.getQuote')}
+            </button>
+            <Link
+              href="/contact"
+              className="block text-center w-full border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded"
+            >
+              {t('product.contact')}
+            </Link>
+          </div>
+        </div>
+      </div>
+      
+      {/* 产品详情 */}
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 className="text-xl font-bold mb-4">{t('product.specs')}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border-b pb-2">
+            <span className="font-medium">{t('product.type')}: </span>
+            <span>{category?.name || t('product.uncategorized')}</span>
+          </div>
+          <div className="border-b pb-2">
+            <span className="font-medium">{t('product.price')}: </span>
+            <span>¥{product.price.toFixed(2)}</span>
+          </div>
+          <div className="border-b pb-2">
+            <span className="font-medium">{t('product.createdAt')}: </span>
+            <span>{new Date(product.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div className="border-b pb-2">
+            <span className="font-medium">{t('product.updatedAt')}: </span>
+            <span>{new Date(product.updatedAt).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
       
       {/* 相关产品 */}
       {relatedProducts.length > 0 && (
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-8">{t('product.related')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-4">{t('product.related')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((relatedProduct) => (
               <Link href={`/products/${relatedProduct.id}`} key={relatedProduct.id}>
                 <div className="group rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">

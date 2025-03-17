@@ -6,6 +6,7 @@ import { Product, getProduct, updateProduct, deleteProduct } from "@/lib/product
 import { Category, getAllCategories } from "@/lib/categoryService";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useSWR from 'swr';
+import { use } from 'react';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json()).then(data => data.data);
 
@@ -17,6 +18,10 @@ interface ProductPageProps {
 
 export default function ProductPage({ params }: ProductPageProps) {
   const router = useRouter();
+  // 使用React.use()解包params
+  const unwrappedParams = use(params);
+  const { id } = unwrappedParams;
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
@@ -33,7 +38,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   // 使用SWR获取产品数据
   const { data: product, error: productError, isLoading: isLoadingProduct, mutate: refreshProduct } = 
-    useSWR(params.id ? `/api/products/${params.id}` : null, fetcher);
+    useSWR(id ? `/api/products/${id}` : null, fetcher);
   
   // 使用SWR获取类别数据
   const { data: categoriesData, error: categoriesError, isLoading: isLoadingCategories } = 
@@ -81,10 +86,10 @@ export default function ProductPage({ params }: ProductPageProps) {
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
-        id: params.id,
+        id: id,
       };
 
-      const result = await updateProduct(params.id, updatedProduct);
+      const result = await updateProduct(id, updatedProduct);
       
       // 成功后刷新数据
       await refreshProduct();
@@ -107,7 +112,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     if (confirm('确定要删除这个产品吗？此操作不可撤销。')) {
       setIsSubmitting(true);
       try {
-        await deleteProduct(params.id);
+        await deleteProduct(id);
         // 成功后返回产品列表页面
         router.push('/dashboard/products');
       } catch (error) {
