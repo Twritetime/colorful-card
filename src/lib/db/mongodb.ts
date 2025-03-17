@@ -36,8 +36,4 @@ export async function connectToDatabase() {
   
   cached.conn = await cached.promise;
   return cached.conn;
-}
-
-// 为CommonJS导入添加兼容性
-// @ts-ignore
-module.exports = { connectToDatabase }; 
+} 

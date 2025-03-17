@@ -34,8 +34,4 @@ const ProductSchema: Schema = new Schema({
 // 这样写是为了防止在Next.js开发模式下的热重载引起的模型重复定义错误
 const ProductModel = mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);
 
-export default ProductModel;
-
-// 为CommonJS导入添加兼容性
-// @ts-ignore
-module.exports = { default: ProductModel }; 
+export default ProductModel; 
