@@ -7,6 +7,7 @@ import { Category, getAllCategories } from "@/lib/categoryService";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useSWR from 'swr';
 import { use } from 'react';
+import ImageDropzone from '@/components/ImageDropzone';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json()).then(data => data.data);
 
@@ -73,6 +74,14 @@ export default function ProductPage({ params }: ProductPageProps) {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  // 处理图片变化
+  const handleImagesChange = (newImages: string[]) => {
+    setFormData(prev => ({
+      ...prev,
+      images: newImages
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -262,6 +271,22 @@ export default function ProductPage({ params }: ProductPageProps) {
           </select>
         </div>
 
+        {/* 图片上传组件 */}
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            产品图片
+          </label>
+          <ImageDropzone
+            initialImages={formData.images}
+            onImagesChange={handleImagesChange}
+            maxImages={5}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            上传产品图片，最多5张，支持JPG、PNG、GIF格式
+          </p>
+        </div>
+
+        {/* 发布状态 */}
         <div className="mb-6">
           <label className="flex items-center">
             <input
