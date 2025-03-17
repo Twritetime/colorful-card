@@ -3,12 +3,24 @@
  * 
  * 使用方法：
  * 1. 确保已设置环境变量MONGODB_URI
- * 2. 运行 npx ts-node src/scripts/seed-db.ts
+ * 2. 运行 npm run seed:products
  */
 
+// 使用CommonJS语法
 const mongoose = require('mongoose');
-const { connectToDatabase } = require('../lib/db/mongodb');
-const Product = require('../models/Product').default;
+const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
+
+// 加载环境变量
+dotenv.config({ path: '.env.local' });
+
+// MongoDB连接URL
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://lowkeylove77:weeICuwtKe171ua9@colorful-card.ms17h.mongodb.net/colorfulcard?retryWrites=true&w=majority';
+
+if (!MONGODB_URI) {
+  throw new Error('请在环境变量中设置MONGODB_URI');
+}
 
 // 初始产品数据
 const initialProducts = [
@@ -41,11 +53,45 @@ const initialProducts = [
   },
 ];
 
+async function connectToMongoDB() {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log('MongoDB连接成功');
+    return mongoose;
+  } catch (error) {
+    console.error('MongoDB连接失败:', error);
+    process.exit(1);
+  }
+}
+
+// 定义产品模型
+function createProductModel() {
+  const ProductSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true },
+    category: { type: String, required: true },
+    stock: { type: Number, required: true, default: 0 },
+    published: { type: Boolean, default: false },
+    images: { type: [String], default: [] },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+  }, {
+    timestamps: true
+  });
+
+  return mongoose.models.Product || mongoose.model('Product', ProductSchema);
+}
+
 async function seedDatabase() {
+  let db;
+
   try {
     // 连接数据库
-    await connectToDatabase();
-    console.log('数据库连接成功');
+    db = await connectToMongoDB();
+    
+    // 获取产品模型
+    const Product = createProductModel();
     
     // 清空现有数据
     await Product.deleteMany({});
@@ -60,7 +106,7 @@ async function seedDatabase() {
     console.error('数据库初始化失败:', error);
   } finally {
     // 关闭数据库连接
-    await mongoose.disconnect();
+    if (db) await mongoose.disconnect();
     console.log('数据库连接已关闭');
   }
 }

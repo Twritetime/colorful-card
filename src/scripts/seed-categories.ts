@@ -3,12 +3,24 @@
  * 
  * 使用方法：
  * 1. 确保已设置环境变量MONGODB_URI
- * 2. 运行 npx ts-node src/scripts/seed-categories.ts
+ * 2. 运行 npm run seed:categories
  */
 
+// 使用CommonJS语法
 const mongoose = require('mongoose');
-const { connectToDatabase } = require('../lib/db/mongodb');
-const Category = require('../models/Category').default;
+const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
+
+// 加载环境变量
+dotenv.config({ path: '.env.local' });
+
+// MongoDB连接URL
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://lowkeylove77:weeICuwtKe171ua9@colorful-card.ms17h.mongodb.net/colorfulcard?retryWrites=true&w=majority';
+
+if (!MONGODB_URI) {
+  throw new Error('请在环境变量中设置MONGODB_URI');
+}
 
 // 初始类别数据
 const initialCategories = [
@@ -50,11 +62,45 @@ const initialCategories = [
   }
 ];
 
+async function connectToMongoDB() {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log('MongoDB连接成功');
+    return mongoose;
+  } catch (error) {
+    console.error('MongoDB连接失败:', error);
+    process.exit(1);
+  }
+}
+
+// 定义类别模型
+function createCategoryModel() {
+  const CategorySchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    description: { type: String, required: true },
+    icon: { type: String },
+    image: { type: String },
+    parentId: { type: String, default: null },
+    order: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+  }, {
+    timestamps: true
+  });
+
+  return mongoose.models.Category || mongoose.model('Category', CategorySchema);
+}
+
 async function seedCategories() {
+  let db;
+
   try {
     // 连接数据库
-    await connectToDatabase();
-    console.log('数据库连接成功');
+    db = await connectToMongoDB();
+    
+    // 获取类别模型
+    const Category = createCategoryModel();
     
     // 清空现有数据
     await Category.deleteMany({});
@@ -69,7 +115,7 @@ async function seedCategories() {
     console.error('类别数据初始化失败:', error);
   } finally {
     // 关闭数据库连接
-    await mongoose.disconnect();
+    if (db) await mongoose.disconnect();
     console.log('数据库连接已关闭');
   }
 }
