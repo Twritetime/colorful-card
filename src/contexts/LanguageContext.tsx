@@ -149,21 +149,32 @@ const translations = {
 
 // 语言提供者组件
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // 首先尝试从本地存储获取语言设置，默认为英语
+  // 默认设置为英语，避免在服务器端读取localStorage
   const [language, setLanguage] = useState<Language>('en');
+  // 添加状态追踪客户端挂载
+  const [isClient, setIsClient] = useState(false);
 
   // 组件挂载时从本地存储加载语言设置
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') as Language;
-    if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
-      setLanguage(savedLanguage);
+    // 标记客户端已挂载
+    setIsClient(true);
+    
+    // 安全地检查window和localStorage是否可用
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('language') as Language;
+      if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en')) {
+        setLanguage(savedLanguage);
+      }
     }
   }, []);
 
   // 保存语言设置到本地存储
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
-    localStorage.setItem('language', lang);
+    // 确保只在客户端执行localStorage操作
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', lang);
+    }
   };
 
   // 翻译函数
