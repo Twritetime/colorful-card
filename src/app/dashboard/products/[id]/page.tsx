@@ -19,9 +19,29 @@ interface ProductPageProps {
 
 export default function ProductPage({ params }: ProductPageProps) {
   const router = useRouter();
-  // 使用React.use()解包params
-  const unwrappedParams = use(params);
-  const { id } = unwrappedParams;
+  
+  // 防止在params未定义时出错
+  const { id } = params || {};
+  
+  // 检查ID是否有效，如果无效则重定向到产品列表页面
+  useEffect(() => {
+    if (!id || id === 'undefined') {
+      console.error('无效的产品ID:', id);
+      // 使用replace而不是push，防止导航历史堆积
+      router.replace('/dashboard/products');
+      
+      // 增加标记防止重复重定向
+      const redirected = sessionStorage.getItem('productRedirected');
+      if (!redirected) {
+        sessionStorage.setItem('productRedirected', 'true');
+        router.replace('/dashboard/products');
+      }
+      return;
+    } else {
+      // 重置重定向标记
+      sessionStorage.removeItem('productRedirected');
+    }
+  }, [id, router]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -37,9 +57,10 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // 使用SWR获取产品数据
+  // 使用SWR获取产品数据，确保ID有效才发起请求
   const { data: product, error: productError, isLoading: isLoadingProduct, mutate: refreshProduct } = 
-    useSWR(id ? `/api/products/${id}` : null, fetcher);
+    useSWR(id && id !== 'undefined' ? `/api/products/${id}` : null, 
+      id && id !== 'undefined' ? fetcher : null);
   
   // 使用SWR获取类别数据
   const { data: categoriesData, error: categoriesError, isLoading: isLoadingCategories } = 
