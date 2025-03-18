@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import mongoose from 'mongoose';
-import { Binary } from 'mongodb';
 
 // 图片Schema
 const imageSchema = new mongoose.Schema({
-  data: { type: Buffer, required: true },
+  data: { type: mongoose.Schema.Types.Mixed, required: true },
   contentType: { type: String, required: true },
   filename: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
