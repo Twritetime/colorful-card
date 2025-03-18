@@ -10,6 +10,8 @@
     "seed-db": "npx tsx src/scripts/seed-db.ts",
     "seed-categories": "npx tsx src/scripts/seed-categories.ts",
     "clear-db": "npx tsx src/scripts/clear-db.ts",
+    "clean-products": "npx tsx src/scripts/clean-products.ts",
+    "clean-blob-products": "npx tsx src/scripts/clean-blob-products.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
