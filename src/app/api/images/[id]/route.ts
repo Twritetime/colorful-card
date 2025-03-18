@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getImage } from '@/lib/imageService';
+import { connectToDatabase } from '@/lib/db';
+import mongoose from 'mongoose';
+
+// 图片Schema
+const imageSchema = new mongoose.Schema({
+  data: { type: mongoose.Schema.Types.Buffer, required: true },
+  contentType: { type: String, required: true },
+  filename: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// 动态创建模型
+const Image = mongoose.models.Image || mongoose.model('Image', imageSchema);
 
 // 为解决Vercel部署问题，添加动态配置
 export const dynamic = 'force-dynamic';
@@ -10,20 +22,30 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const image = await getImage(params.id);
+    await connectToDatabase();
+    
+    const resolvedParams = await params;
+    const image = await Image.findById(resolvedParams.id);
+    
+    if (!image) {
+      return NextResponse.json(
+        { error: '图片不存在' },
+        { status: 404 }
+      );
+    }
     
     // 返回图片数据
     return new NextResponse(image.data, {
       headers: {
         'Content-Type': image.contentType,
-        'Cache-Control': 'public, max-age=31536000',
-      },
+        'Cache-Control': 'public, max-age=31536000'
+      }
     });
   } catch (error) {
     console.error('获取图片失败:', error);
     return NextResponse.json(
-      { success: false, message: '获取图片失败' },
-      { status: 404 }
+      { error: '获取图片失败' },
+      { status: 500 }
     );
   }
 } 

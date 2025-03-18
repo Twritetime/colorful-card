@@ -17,21 +17,22 @@ const Image = mongoose.models.Image || mongoose.model('Image', imageSchema);
 // 上传图片
 export const uploadImage = async (file: File): Promise<string> => {
   try {
-    await connectToDatabase();
+    // 创建 FormData
+    const formData = new FormData();
+    formData.append('file', file);
     
-    // 将文件转换为 Buffer
-    const buffer = await file.arrayBuffer();
-    const binary = new Binary(Buffer.from(buffer));
-    
-    // 保存图片到 MongoDB
-    const image = await Image.create({
-      data: binary,
-      contentType: file.type,
-      filename: file.name
+    // 上传图片到服务器
+    const response = await fetch('/api/images', {
+      method: 'POST',
+      body: formData
     });
     
-    // 返回图片ID作为URL
-    return `/api/images/${image._id}`;
+    if (!response.ok) {
+      throw new Error('上传图片失败');
+    }
+    
+    const result = await response.json();
+    return result.url;
   } catch (error) {
     console.error('上传图片失败:', error);
     throw error;

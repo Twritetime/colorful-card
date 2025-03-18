@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/db/mongodb';
+import { connectToDatabase } from '@/lib/db';
 import mongoose from 'mongoose';
 import { Binary } from 'mongodb';
 
-// 为解决Vercel部署问题，添加动态配置
-export const dynamic = 'force-dynamic';
-
-// 图片模型
+// 图片Schema
 const imageSchema = new mongoose.Schema({
-  data: Buffer,
-  contentType: String,
-  filename: String,
+  data: { type: mongoose.Schema.Types.Buffer, required: true },
+  contentType: { type: String, required: true },
+  filename: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
-// 确保模型只被创建一次
+// 动态创建模型
 const Image = mongoose.models.Image || mongoose.model('Image', imageSchema);
 
-// 上传图片
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
@@ -27,7 +25,7 @@ export async function POST(request: NextRequest) {
     
     if (!file) {
       return NextResponse.json(
-        { success: false, message: '未找到文件' },
+        { error: '未找到文件' },
         { status: 400 }
       );
     }
@@ -45,13 +43,12 @@ export async function POST(request: NextRequest) {
     
     // 返回图片URL
     return NextResponse.json({
-      success: true,
       url: `/api/images/${image._id}`
     });
   } catch (error) {
     console.error('上传图片失败:', error);
     return NextResponse.json(
-      { success: false, message: '上传图片失败' },
+      { error: '上传图片失败' },
       { status: 500 }
     );
   }
