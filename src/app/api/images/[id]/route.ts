@@ -22,17 +22,22 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('开始处理图片获取请求，ID:', params.id);
     await connectToDatabase();
+    console.log('数据库连接成功');
     
     const resolvedParams = await params;
     const image = await Image.findById(resolvedParams.id);
     
     if (!image) {
+      console.error('图片不存在:', resolvedParams.id);
       return NextResponse.json(
         { error: '图片不存在' },
         { status: 404 }
       );
     }
+    
+    console.log('图片获取成功:', image.filename, image.contentType);
     
     // 返回图片数据
     return new NextResponse(image.data, {
