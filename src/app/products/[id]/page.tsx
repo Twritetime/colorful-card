@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Product, getProduct, getAllProducts } from "@/lib/productService";
-import { Category, getCategory } from "@/lib/categoryService";
+import { Category, getAllCategories } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProductPageProps {
@@ -37,55 +37,51 @@ export default function ProductPage({ params }: ProductPageProps) {
         if (!id || id === 'undefined') {
           console.error('无效的产品ID:', id);
           setError('无效的产品ID');
-          setIsLoading(false);
+          router.push('/products'); // 重定向到产品列表页面
           return;
         }
         
         console.log(`尝试获取产品详情，ID: ${id}`);
+        const productData = await getProduct(id);
         
-        // 使用await以确保错误被正确捕获
+        if (!productData) {
+          // 如果产品不存在，设置错误并重定向
+          console.error('产品不存在');
+          setError('抱歉，找不到该产品');
+          setTimeout(() => {
+            router.push('/products');
+          }, 2000); // 2秒后重定向
+          return;
+        }
+        
+        // 产品数据获取成功
+        setProduct(productData);
+        
+        // 获取产品类目 - 使用getAllCategories替代getCategory
         try {
-          const productData = await getProduct(id);
-          console.log('获取到产品数据:', productData);
-          
-          if (!productData) {
-            console.error('产品不存在，ID:', id);
-            setError('抱歉，找不到该产品');
-            setIsLoading(false);
-            return;
-          }
-          
-          // 产品数据获取成功
-          setProduct(productData);
-          
-          // 获取产品类目
-          try {
-            if (productData.category) {
-              const categoryData = await getCategory(productData.category);
+          if (productData.category) {
+            const categories = await getAllCategories();
+            const categoryData = categories.find(c => c._id === productData.category || c.id === productData.category);
+            if (categoryData) {
               setCategory(categoryData);
             }
-          } catch (categoryError) {
-            console.error('获取类别信息失败:', categoryError);
-            // 不会中断主流程
           }
-          
-          // 获取相关产品
-          try {
-            const allProducts = await getAllProducts();
-            // 过滤出相同类别的产品，但排除当前产品
-            const related = allProducts
-              .filter(p => p.category === productData.category && (p.id !== id && p._id !== id))
-              .slice(0, 4); // 最多显示4个相关产品
-            setRelatedProducts(related);
-          } catch (relatedError) {
-            console.error('获取相关产品失败:', relatedError);
-            // 不会中断主流程
-          }
-        } catch (productError) {
-          console.error('获取产品数据失败:', productError);
-          setError('加载产品时出错，请刷新页面重试');
-          setIsLoading(false);
-          return;
+        } catch (categoryError) {
+          console.error('获取类别信息失败:', categoryError);
+          // 不会中断主流程
+        }
+        
+        // 获取相关产品
+        try {
+          const allProducts = await getAllProducts();
+          // 过滤出相同类别的产品，但排除当前产品
+          const related = allProducts
+            .filter(p => p.category === productData.category && (p._id || p.id) !== id)
+            .slice(0, 4); // 最多显示4个相关产品
+          setRelatedProducts(related);
+        } catch (relatedError) {
+          console.error('获取相关产品失败:', relatedError);
+          // 不会中断主流程
         }
         
         setIsLoading(false);
@@ -97,7 +93,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     };
     
     fetchProduct();
-  }, [id]);
+  }, [id, router]);
 
   // 获取类目名称
   const getCategoryName = () => {
@@ -258,7 +254,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           <h2 className="text-xl font-bold mb-4">{t('product.related')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((relatedProduct) => (
-              <Link href={`/products/${relatedProduct.id}`} key={relatedProduct.id}>
+              <Link href={`/products/${relatedProduct._id || relatedProduct.id}`} key={relatedProduct._id || relatedProduct.id}>
                 <div className="group rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
                   <div className="relative h-64 overflow-hidden">
                     {relatedProduct.images && relatedProduct.images.length > 0 ? (

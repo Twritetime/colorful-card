@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { SVGProps } from "react";
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const navigation = {
   products: [

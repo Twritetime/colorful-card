@@ -40,17 +40,12 @@ export async function POST(request: NextRequest) {
     await connectToDatabase();
     
     const productData = await request.json();
-    
-    console.log('创建产品数据:', JSON.stringify(productData));
-    
     const product = await Product.create(productData);
     
     // 触发Vercel部署钩子，确保前端显示最新数据
     try {
-      const DEPLOY_HOOK_URL = process.env.VERCEL_DEPLOY_HOOK_URL;
-      if (DEPLOY_HOOK_URL) {
-        await fetch(DEPLOY_HOOK_URL, { method: 'POST' });
-      }
+      const DEPLOY_HOOK_URL = 'https://api.vercel.com/v1/integrations/deploy/prj_EeVz83Ew8k82vyl9uRKGX2fWYCqs/NSM7Z5B7wm';
+      await fetch(DEPLOY_HOOK_URL, { method: 'POST' });
     } catch (deployError) {
       console.warn('触发部署钩子失败:', deployError);
       // 继续处理，不影响API响应

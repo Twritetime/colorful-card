@@ -26,20 +26,11 @@ export const getProduct = async (id: string): Promise<Product | null> => {
 
   try {
     console.log(`正在获取产品，ID: ${id}`);
-    // 确保ID是有效的字符串格式
-    const safeId = encodeURIComponent(id.toString().trim());
-    
-    const response = await fetch(`${API_BASE_URL}/api/products/${safeId}`);
+    const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
     
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`获取产品失败: ${response.status} ${response.statusText}`, errorText);
-      
-      if (response.status === 404) {
-        console.error(`产品不存在，ID: ${id}`);
-        return null;
-      }
-      
       throw new Error(response.statusText || `HTTP错误 ${response.status}`);
     }
     
@@ -50,12 +41,6 @@ export const getProduct = async (id: string): Promise<Product | null> => {
       throw new Error(result.message || '获取产品失败');
     }
     
-    if (!result.data) {
-      console.error('API返回空数据，产品可能不存在:', id);
-      return null;
-    }
-    
-    console.log('成功获取产品数据:', id);
     return result.data;
   } catch (error) {
     console.error('获取产品出错:', error);
@@ -84,40 +69,32 @@ export const getAllProducts = async (): Promise<Product[]> => {
 // 创建新产品
 export const createProduct = async (productData: Omit<Product, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Product | null> => {
   try {
-    console.log('准备创建产品:', JSON.stringify(productData));
-    
     const response = await fetch(`${API_BASE_URL}/api/products`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(productData),
-      cache: 'no-store',
     });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('创建产品失败:', response.status, response.statusText, errorText);
-      throw new Error(`创建产品失败: ${response.status} ${response.statusText} - ${errorText}`);
+      console.error('创建产品失败:', response.statusText);
+      return null;
     }
     
     const result = await response.json();
-    console.log('产品创建成功:', result);
     return result.success ? result.data : null;
   } catch (error) {
     console.error('创建产品出错:', error);
-    throw error; // 向上传递错误
+    return null;
   }
 };
 
 // 更新产品
 export const updateProduct = async (id: string, productData: Partial<Product>): Promise<Product | null> => {
   try {
-    // 确保数据中不包含_id和id字段，避免MongoDB更新错误
-    const { _id, id: dataId, ...updateData } = productData as any;
-    
-    console.log('准备更新产品，ID:', id);
-    console.log('更新数据:', JSON.stringify(updateData));
+    // 确保不传递_id字段，避免MongoDB更新错误
+    const { _id, ...updateData } = productData;
     
     const response = await fetch(`${API_BASE_URL}/api/products/${id}`, {
       method: 'PUT',
@@ -125,21 +102,18 @@ export const updateProduct = async (id: string, productData: Partial<Product>): 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(updateData),
-      cache: 'no-store',
     });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('更新产品失败:', response.status, response.statusText, errorText);
-      throw new Error(`更新产品失败: ${response.status} ${response.statusText} - ${errorText}`);
+      console.error('更新产品失败:', response.statusText);
+      return null;
     }
     
     const result = await response.json();
-    console.log('产品更新成功:', result);
     return result.success ? result.data : null;
   } catch (error) {
     console.error('更新产品出错:', error);
-    throw error; // 向上传递错误
+    return null;
   }
 };
 

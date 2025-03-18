@@ -7,7 +7,6 @@ import { Category, getAllCategories } from "@/lib/categoryService";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import useSWR from 'swr';
 import { use } from 'react';
-import ImageDropzone from '@/components/ImageDropzone';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json()).then(data => data.data);
 
@@ -19,29 +18,9 @@ interface ProductPageProps {
 
 export default function ProductPage({ params }: ProductPageProps) {
   const router = useRouter();
-  
-  // 防止在params未定义时出错
-  const { id } = params || {};
-  
-  // 检查ID是否有效，如果无效则重定向到产品列表页面
-  useEffect(() => {
-    if (!id || id === 'undefined') {
-      console.error('无效的产品ID:', id);
-      // 使用replace而不是push，防止导航历史堆积
-      router.replace('/dashboard/products');
-      
-      // 增加标记防止重复重定向
-      const redirected = sessionStorage.getItem('productRedirected');
-      if (!redirected) {
-        sessionStorage.setItem('productRedirected', 'true');
-        router.replace('/dashboard/products');
-      }
-      return;
-    } else {
-      // 重置重定向标记
-      sessionStorage.removeItem('productRedirected');
-    }
-  }, [id, router]);
+  // 使用React.use()解包params
+  const unwrappedParams = use(params);
+  const { id } = unwrappedParams;
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,10 +36,9 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // 使用SWR获取产品数据，确保ID有效才发起请求
+  // 使用SWR获取产品数据
   const { data: product, error: productError, isLoading: isLoadingProduct, mutate: refreshProduct } = 
-    useSWR(id && id !== 'undefined' ? `/api/products/${id}` : null, 
-      id && id !== 'undefined' ? fetcher : null);
+    useSWR(id ? `/api/products/${id}` : null, fetcher);
   
   // 使用SWR获取类别数据
   const { data: categoriesData, error: categoriesError, isLoading: isLoadingCategories } = 
@@ -95,14 +73,6 @@ export default function ProductPage({ params }: ProductPageProps) {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
-  };
-
-  // 处理图片变化
-  const handleImagesChange = (newImages: string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      images: newImages
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -292,22 +262,6 @@ export default function ProductPage({ params }: ProductPageProps) {
           </select>
         </div>
 
-        {/* 图片上传组件 */}
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            产品图片
-          </label>
-          <ImageDropzone
-            initialImages={formData.images}
-            onImagesChange={handleImagesChange}
-            maxImages={5}
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            上传产品图片，最多5张，支持JPG、PNG、GIF格式
-          </p>
-        </div>
-
-        {/* 发布状态 */}
         <div className="mb-6">
           <label className="flex items-center">
             <input
