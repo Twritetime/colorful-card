@@ -59,6 +59,29 @@ export default function NewProductPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 表单验证
+    if (!formData.name.trim()) {
+      alert('请输入产品名称');
+      return;
+    }
+    if (!formData.description.trim()) {
+      alert('请输入产品描述');
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      alert('请输入有效的产品价格');
+      return;
+    }
+    if (!formData.category) {
+      alert('请选择产品类目');
+      return;
+    }
+    if (!formData.stock || parseInt(formData.stock) < 0) {
+      alert('请输入有效的库存数量');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -73,6 +96,10 @@ export default function NewProductPage() {
       
       // 创建产品
       const newProduct = await createProduct(productData);
+      
+      if (!newProduct) {
+        throw new Error('创建产品失败');
+      }
       
       // 重定向到产品列表页
       router.push('/dashboard/products');

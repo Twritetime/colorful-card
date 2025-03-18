@@ -17,10 +17,10 @@ export default function ProductImageUploader({
   multiple = true 
 }: ProductImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   const [localImages, setLocalImages] = useState<string[]>(images);
 
   useEffect(() => {
-    // 每当外部images发生变化时，更新本地状态
     setLocalImages(images);
   }, [images]);
 
@@ -29,47 +29,46 @@ export default function ProductImageUploader({
       try {
         setIsUploading(true);
         
-        // 先为每个文件创建临时blob URL以便立即预览
+        // 创建临时预览
         const tempUrls = acceptedFiles.map(file => URL.createObjectURL(file));
-        
-        // 添加临时URLs到当前图片列表中
-        const updatedImages = multiple ? [...localImages, ...tempUrls] : [...tempUrls];
+        const updatedImages = multiple ? [...localImages, ...tempUrls] : tempUrls;
         setLocalImages(updatedImages);
         
-        // 上传所有文件到服务器
+        // 上传文件
         const uploadPromises = acceptedFiles.map(async (file, index) => {
           try {
+            setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 0 }));
+            
+            // 上传图片
             const url = await uploadImage(file);
             
-            // 替换blob URL为服务器URL
+            setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 100 }));
             return { tempUrl: tempUrls[index], serverUrl: url };
           } catch (error) {
             console.error('上传图片失败:', error);
+            setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: -1 }));
             return { tempUrl: tempUrls[index], serverUrl: null };
           }
         });
         
         const results = await Promise.all(uploadPromises);
         
-        // 更新图片列表，替换临时URL为服务器URL
+        // 更新图片列表
         const finalImages = localImages.map(img => {
           const match = results.find(r => r.tempUrl === img);
           return match ? (match.serverUrl || img) : img;
-        });
+        }).filter(url => url !== null && !url.startsWith('blob:'));
         
-        // 过滤掉上传失败的图片
-        const validImages = finalImages.filter(url => url !== null);
+        setLocalImages(finalImages);
+        onChange(finalImages);
         
-        // 更新组件状态和父组件
-        setLocalImages(validImages as string[]);
-        onChange(validImages as string[]);
-        
-        // 释放blob URLs
+        // 清理临时URL
         tempUrls.forEach(url => URL.revokeObjectURL(url));
       } catch (error) {
         console.error('处理图片上传失败:', error);
       } finally {
         setIsUploading(false);
+        setUploadProgress({});
       }
     },
     [localImages, onChange, multiple]
@@ -86,25 +85,26 @@ export default function ProductImageUploader({
     accept: {
       'image/*': []
     },
-    multiple
+    multiple,
+    disabled: isUploading
   });
 
   return (
     <div className="w-full">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-md p-4 text-center cursor-pointer ${
-          isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300'
+        className={`border-2 border-dashed rounded-md p-4 text-center cursor-pointer transition-colors ${
+          isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-primary/50'
         } ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <input {...getInputProps()} />
         {isUploading ? (
-          <p className="text-gray-500">上传中，请稍候...</p>
+          <p className="text-gray-500">正在上传图片，请稍候...</p>
         ) : isDragActive ? (
-          <p className="text-primary">拖放图片到这里</p>
+          <p className="text-primary">松开鼠标上传图片</p>
         ) : (
           <p className="text-gray-500">
-            {multiple ? '点击或拖放图片到这里上传' : '点击或拖放一张图片到这里上传'}
+            {multiple ? '点击或拖放图片到这里上传（可多选）' : '点击或拖放一张图片到这里上传'}
           </p>
         )}
       </div>
@@ -112,19 +112,30 @@ export default function ProductImageUploader({
       {localImages.length > 0 && (
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {localImages.map((src, index) => (
-            <div key={index} className="relative group">
-              <div className="aspect-square relative overflow-hidden rounded-md bg-gray-100">
+            <div key={src} className="relative group">
+              <div className="aspect-square relative w-full h-[200px] overflow-hidden rounded-md bg-gray-100">
                 <ClientImage
                   src={src}
                   alt={`上传的图片 ${index + 1}`}
                   fill
+                  className="object-cover"
                   style={{ objectFit: 'cover' }}
                 />
+                {uploadProgress[src] !== undefined && uploadProgress[src] !== 100 && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    {uploadProgress[src] === -1 ? (
+                      <span className="text-white text-sm">上传失败</span>
+                    ) : (
+                      <span className="text-white text-sm">{uploadProgress[src]}%</span>
+                    )}
+                  </div>
+                )}
               </div>
               <button
                 type="button"
                 onClick={() => removeImage(index)}
                 className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                disabled={isUploading}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
