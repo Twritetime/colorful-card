@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import Product from '@/models/Product';
 
-// 确保每次请求都获取最新数据
+// 为解决Vercel部署问题，添加动态配置
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
