@@ -118,8 +118,8 @@ export default function ProductImageUploader({
                   src={src}
                   alt={`上传的图片 ${index + 1}`}
                   fill
+                  priority={index < 4}
                   className="object-cover"
-                  style={{ objectFit: 'cover' }}
                 />
                 {uploadProgress[src] !== undefined && uploadProgress[src] !== 100 && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50">
