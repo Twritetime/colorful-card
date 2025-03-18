@@ -9,10 +9,16 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '**',
       }
     ],
     dangerouslyAllowSVG: true,
-    domains: ['via.placeholder.com', 'images.unsplash.com'],
+    domains: ['via.placeholder.com', 'images.unsplash.com', 'localhost'],
+    formats: ['image/avif', 'image/webp'],
+    unoptimized: process.env.NODE_ENV === 'development',
   },
   webpack: (config) => {
     config.module.rules.push({
