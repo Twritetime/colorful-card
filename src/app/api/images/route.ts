@@ -5,7 +5,7 @@ import { Binary } from 'mongodb';
 
 // 图片Schema
 const imageSchema = new mongoose.Schema({
-  data: { type: mongoose.Schema.Types.Buffer, required: true },
+  data: { type: Buffer, required: true },
   contentType: { type: String, required: true },
   filename: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
@@ -32,11 +32,10 @@ export async function POST(request: NextRequest) {
     
     // 将文件转换为 Buffer
     const buffer = await file.arrayBuffer();
-    const binary = new Binary(Buffer.from(buffer));
     
     // 保存图片到 MongoDB
     const image = await Image.create({
-      data: binary,
+      data: Buffer.from(buffer),
       contentType: file.type,
       filename: file.name
     });

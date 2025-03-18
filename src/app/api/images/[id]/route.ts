@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 // 图片Schema
 const imageSchema = new mongoose.Schema({
-  data: { type: mongoose.Schema.Types.Buffer, required: true },
+  data: { type: Buffer, required: true },
   contentType: { type: String, required: true },
   filename: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
