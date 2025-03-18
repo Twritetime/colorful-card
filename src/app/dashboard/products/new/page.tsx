@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProduct } from '@/lib/productService';
 import { getAllCategories, Category } from '@/lib/categoryService';
-import ImageDropzone from '@/components/ImageDropzone';
+import ProductImageUploader from '@/components/ProductImageUploader';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -180,13 +180,14 @@ export default function NewProductPage() {
           ></textarea>
         </div>
         
-        <div className="mb-6">
+        <div className="col-span-2">
           <label className="block mb-2 text-sm font-medium">
             产品图片
           </label>
-          <ImageDropzone 
-            initialImages={formData.images}
-            onImagesChange={handleImagesChange}
+          <ProductImageUploader 
+            images={formData.images}
+            onChange={handleImagesChange}
+            multiple={true}
           />
         </div>
         
