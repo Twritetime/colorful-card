@@ -1,89 +1,36 @@
 "use client";
 
-import { getServerSession } from "next-auth/next";
-import DashboardCard from "@/components/dashboard/DashboardCard";
-import {
-  ShoppingBagIcon,
-  UsersIcon,
-  CubeIcon,
-  ChatBubbleLeftRightIcon,
-} from "@heroicons/react/24/outline";
-import RedeployButton from "@/components/dashboard/RedeployButton";
+import React from 'react';
+import Link from 'next/link';
+import { Card } from '@/components/ui/card';
 
-export default async function DashboardPage() {
-  const session = await getServerSession();
-  
-  // 在实际应用中，这些数据应该从数据库中获取
-  const stats = [
-    {
-      name: "Total Products",
-      value: "24",
-      icon: <CubeIcon className="h-6 w-6" />,
-      change: "+4.75%",
-      changeType: "increase",
-    },
-    {
-      name: "Total Orders",
-      value: "12",
-      icon: <ShoppingBagIcon className="h-6 w-6" />,
-      change: "+54.02%",
-      changeType: "increase",
-    },
-    {
-      name: "Inquiries",
-      value: "8",
-      icon: <ChatBubbleLeftRightIcon className="h-6 w-6" />,
-      change: "-1.39%",
-      changeType: "decrease",
-    },
-    {
-      name: "Customers",
-      value: "6",
-      icon: <UsersIcon className="h-6 w-6" />,
-      change: "+10.18%",
-      changeType: "increase",
-    },
-  ];
-
+export default function DashboardPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back, {session?.user?.name || "Admin"}
-        </p>
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-8">仪表盘</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link href="/dashboard/products" className="block">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-2">产品管理</h2>
+            <p className="text-gray-600">管理产品列表、添加新产品、更新产品信息</p>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/categories" className="block">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-2">类别管理</h2>
+            <p className="text-gray-600">管理产品类别、添加新类别、更新类别信息</p>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/orders" className="block">
+          <Card className="p-6 hover:shadow-lg transition-shadow">
+            <h2 className="text-xl font-semibold mb-2">订单管理</h2>
+            <p className="text-gray-600">查看和处理订单、更新订单状态</p>
+          </Card>
+        </Link>
       </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <DashboardCard
-            key={stat.name}
-            title={stat.name}
-            value={stat.value}
-            icon={stat.icon}
-            change={stat.change}
-            changeType={stat.changeType as "increase" | "decrease"}
-          />
-        ))}
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="col-span-2 bg-card rounded-lg border p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
-          <div className="text-center py-8 text-muted-foreground">
-            No orders yet. Orders will appear here when customers place them.
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Recent Inquiries</h2>
-          <div className="text-center py-8 text-muted-foreground">
-            No inquiries yet. Customer inquiries will appear here.
-          </div>
-        </div>
-      </div>
-
-      <RedeployButton />
     </div>
   );
 } 
