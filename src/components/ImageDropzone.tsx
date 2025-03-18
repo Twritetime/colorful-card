@@ -9,16 +9,12 @@ interface ImageDropzoneProps {
   initialImages?: string[];
   onImagesChange: (images: string[]) => void;
   maxImages?: number;
-  size?: 'thumbnail' | 'small' | 'medium' | 'large';
-  format?: 'jpeg' | 'webp' | 'avif';
 }
 
 export default function ImageDropzone({ 
   initialImages = [], 
   onImagesChange,
-  maxImages = 5,
-  size = 'medium',
-  format = 'webp'
+  maxImages = 5
 }: ImageDropzoneProps) {
   const [images, setImages] = useState<string[]>(initialImages);
   const [isUploading, setIsUploading] = useState(false);
@@ -27,7 +23,6 @@ export default function ImageDropzone({
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     try {
       setIsUploading(true);
-      setError(null);
       
       // 检查文件数量是否超过最大值
       if (images.length + acceptedFiles.length > maxImages) {
@@ -39,30 +34,24 @@ export default function ImageDropzone({
       const uploadPromises = acceptedFiles.map(file => uploadImage(file));
       const uploadedUrls = await Promise.all(uploadPromises);
       
-      // 添加尺寸和格式参数到URL
-      const processedUrls = uploadedUrls.map(url => 
-        `${url}?size=${size}&format=${format}`
-      );
-      
       // 更新图片列表
-      const newImages = [...images, ...processedUrls];
+      const newImages = [...images, ...uploadedUrls];
       setImages(newImages);
       onImagesChange(newImages);
     } catch (error) {
       console.error('上传图片失败:', error);
-      setError('上传图片失败，请重试');
+      alert('上传图片失败，请重试');
     } finally {
       setIsUploading(false);
     }
-  }, [images, maxImages, onImagesChange, size, format]);
+  }, [images, maxImages, onImagesChange]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.gif']
     },
-    multiple: true,
-    maxSize: 10 * 1024 * 1024 // 10MB
+    multiple: true
   });
 
   const removeImage = (index: number) => {
@@ -81,20 +70,15 @@ export default function ImageDropzone({
       >
         <input {...getInputProps()} disabled={isUploading} />
         {isUploading ? (
-          <p className="text-gray-500">正在上传并处理图片...</p>
+          <p className="text-gray-500">正在上传...</p>
         ) : isDragActive ? (
           <p className="text-primary">放开以上传图片</p>
         ) : (
-          <div className="space-y-2">
-            <p className="text-gray-500">
-              拖放图片到此处，或点击选择图片
-            </p>
-            <p className="text-xs text-gray-400">
-              支持 PNG, JPG, JPEG, GIF (最大10MB)
-              <br />
-              图片将自动优化并转换为 {format.toUpperCase()} 格式
-            </p>
-          </div>
+          <p className="text-gray-500">
+            拖放图片到此处，或点击选择图片
+            <br />
+            <span className="text-xs">支持 PNG, JPG, JPEG, GIF</span>
+          </p>
         )}
       </div>
       
@@ -124,9 +108,6 @@ export default function ImageDropzone({
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </button>
-              <div className="absolute bottom-2 left-2 right-2 bg-black/50 text-white text-xs p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                查看原图
-              </div>
             </div>
           ))}
         </div>
