@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import ClientImage from "@/components/ClientImage";
 
 interface Product {
   id: string;
@@ -98,11 +98,11 @@ export default function ProductList({ products }: ProductListProps) {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0 relative rounded overflow-hidden">
-                        <Image
+                        <ClientImage
                           src={product.images[0] || "https://via.placeholder.com/100"}
                           alt={product.name}
                           fill
-                          className="object-cover"
+                          style={{ objectFit: 'cover' }}
                         />
                       </div>
                       <div className="ml-4">

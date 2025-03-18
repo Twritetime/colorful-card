@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
@@ -9,6 +8,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Product, getProduct, getAllProducts } from "@/lib/productService";
 import { Category, getAllCategories } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
+import ClientImage from "@/components/ClientImage";
 
 interface ProductPageProps {
   params: {
@@ -161,21 +161,34 @@ export default function ProductPage({ params }: ProductPageProps) {
       </Link>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* 产品图片 */}
-        <div className="bg-white p-2 rounded-lg shadow overflow-hidden">
-          {product.images && product.images.length > 0 ? (
-            <div className="relative h-80 md:h-96">
-              <Image
-                src={product.images[0]}
-                alt={product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                className="object-contain"
-              />
-            </div>
-          ) : (
-            <div className="relative h-80 md:h-96 bg-gray-100 flex items-center justify-center">
-              <p className="text-gray-400">无图片</p>
+        {/* 产品主图 */}
+        <div className="md:flex-1 mb-8 md:mb-0">
+          <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
+            <ClientImage
+              src={product.images[0] || "/placeholder.jpg"}
+              alt={product.name}
+              fill
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
+          
+          {/* 产品缩略图 */}
+          {product.images.length > 1 && (
+            <div className="grid grid-cols-5 gap-2 mt-4">
+              {product.images.map((image, idx) => (
+                <div 
+                  key={idx}
+                  className="aspect-square relative rounded overflow-hidden cursor-pointer"
+                  onClick={() => setActiveImage(idx)}
+                >
+                  <ClientImage
+                    src={image}
+                    alt={`${product.name} thumbnail ${idx + 1}`}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -255,22 +268,17 @@ export default function ProductPage({ params }: ProductPageProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((relatedProduct) => (
               <Link href={`/products/${relatedProduct._id || relatedProduct.id}`} key={relatedProduct._id || relatedProduct.id}>
-                <div className="group rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="relative h-64 overflow-hidden">
-                    {relatedProduct.images && relatedProduct.images.length > 0 ? (
-                      <Image
-                        src={relatedProduct.images[0]}
-                        alt={relatedProduct.name}
-                        width={300}
-                        height={200}
-                        className="object-cover w-full h-full"
-                        unoptimized={true}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 flex items-center justify-center text-muted-foreground">
-                        无图片
-                      </div>
-                    )}
+                <div 
+                  key={relatedProduct._id || relatedProduct.id}
+                  className="group border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <div className="relative aspect-square">
+                    <ClientImage
+                      src={relatedProduct.images[0] || "/placeholder.jpg"}
+                      alt={relatedProduct.name}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold">{relatedProduct.name}</h3>

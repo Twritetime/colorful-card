@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Product, getAllProducts } from "@/lib/productService";
 import { Category, getAllCategories } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
+import ClientImage from "@/components/ClientImage";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -122,35 +122,29 @@ export default function ProductsPage() {
           {filteredProducts.map((product) => (
             <Link href={`/products/${product._id || product.id}`} key={product._id || product.id}>
               <div className="group rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
-                <div className="relative h-64 overflow-hidden">
-                  {product.images && product.images.length > 0 ? (
-                    <Image
-                      src={product.images[0]}
+                <div className="flex flex-col h-full">
+                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-4">
+                    <ClientImage
+                      src={product.images[0] || "/placeholder.jpg"}
                       alt={product.name}
-                      width={400}
-                      height={300}
-                      className="rounded-t-lg object-cover w-full h-48"
-                      unoptimized={true}
+                      fill
+                      style={{ objectFit: 'cover' }}
                     />
-                  ) : (
-                    <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-muted-foreground">
-                      无图片
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
-                      {getCategoryName(product.category)}
-                    </span>
                   </div>
-                  <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-                    {product.description}
-                  </p>
-                  <div className="flex justify-between items-center mt-auto">
-                    <span className="font-medium text-primary">¥{product.price.toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground">{t('products.stock')}: {product.stock}</span>
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-lg">{product.name}</h3>
+                      <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
+                        {getCategoryName(product.category)}
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
+                      {product.description}
+                    </p>
+                    <div className="flex justify-between items-center mt-auto">
+                      <span className="font-medium text-primary">¥{product.price.toFixed(2)}</span>
+                      <span className="text-xs text-muted-foreground">{t('products.stock')}: {product.stock}</span>
+                    </div>
                   </div>
                 </div>
               </div>
