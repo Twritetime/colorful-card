@@ -16,15 +16,13 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { t, language } = useLanguage();
 
-  // 从productService获取产品数据和类目数据
-  useEffect(() => {
+  // 从productService获取产品数据和类目数�?  useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         // 获取产品数据（异步）
         const productData = await getAllProducts();
-        // 只显示已发布的产品
-        setProducts(productData.filter(p => p.published));
+        // 只显示已发布的产�?        setProducts(productData.filter(p => p.published));
         
         // 获取类目数据（异步）
         const categoryData = await getAllCategories();
@@ -62,7 +60,7 @@ export default function ProductsPage() {
         </p>
       </div>
 
-      {/* 搜索和筛选 */}
+      {/* 搜索和筛�?*/}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <input
@@ -125,8 +123,7 @@ export default function ProductsPage() {
                     />
                   ) : (
                     <div className="w-full h-48 bg-gray-100 flex items-center justify-center text-muted-foreground">
-                      无图片
-                    </div>
+                      无图�?                    </div>
                   )}
                 </div>
                 <div className="p-4">
@@ -161,12 +158,12 @@ export default function ProductsPage() {
       {/* 询价区域 */}
       <div className="mt-16 bg-muted rounded-lg p-8 text-center">
         <h2 className="text-2xl font-bold mb-4">
-          {language === 'en' ? "Looking for a Custom Solution?" : "寻找定制解决方案？"}
+          {language === 'en' ? "Looking for a Custom Solution?" : "寻找定制解决方案�?}
         </h2>
         <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
           {language === 'en' 
             ? "We offer fully customized design and production services to meet your unique needs. Contact us for a free quote."
-            : "我们提供完全定制的设计和生产服务，满足您的独特需求。联系我们获取免费报价。"
+            : "我们提供完全定制的设计和生产服务，满足您的独特需求。联系我们获取免费报价�?
           }
         </p>
         <Link
