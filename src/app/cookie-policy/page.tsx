@@ -29,7 +29,7 @@ export default function CookiePolicyPage() {
     zh: {
       title: "Cookie 政策",
       lastUpdated: "最后更新：2024年3月",
-      introduction: "本Cookie政策解释了彩卡有限公司（"我们"）如何使用cookie和类似技术在您访问我们的网站时识别您。它解释了这些技术是什么，为什么我们使用它们，以及您控制我们使用它们的权利。",
+      introduction: "本Cookie政策解释了彩卡有限公司（\"我们\"）如何使用cookie和类似技术在您访问我们的网站时识别您。它解释了这些技术是什么，为什么我们使用它们，以及您控制我们使用它们的权利。",
       sections: [
         {
           title: "什么是cookies？",
@@ -37,7 +37,7 @@ export default function CookiePolicyPage() {
         },
         {
           title: "为什么我们使用cookies？",
-          content: "我们出于多种原因使用第一方和第三方cookie。某些cookie是出于技术原因需要的，以便我们的网站运行，我们将其称为"必要"cookie。其他cookie使我们能够跟踪和定位用户的兴趣，以增强我们在线属性的体验。"
+          content: "我们出于多种原因使用第一方和第三方cookie。某些cookie是出于技术原因需要的，以便我们的网站运行，我们将其称为\"必要\"cookie。其他cookie使我们能够跟踪和定位用户的兴趣，以增强我们在线属性的体验。"
         },
         {
           title: "如何控制cookies？",
