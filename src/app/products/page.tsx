@@ -76,7 +76,7 @@ export default function ProductsPage() {
         </div>
         <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2">
           <button
-            key="all-category"
+            key="all-categories"
             onClick={() => setSelectedCategory("all")}
             className={`px-4 py-2 rounded-md whitespace-nowrap text-sm font-medium ${
               selectedCategory === "all"

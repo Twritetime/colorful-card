@@ -42,41 +42,50 @@ export default function ProductPage({ params }: ProductPageProps) {
         }
         
         console.log(`尝试获取产品详情，ID: ${id}`);
-        const productData = await getProduct(id);
         
-        if (!productData) {
-          // 如果产品不存在，设置错误
-          console.error('产品不存在');
-          setError('抱歉，找不到该产品');
+        // 使用await以确保错误被正确捕获
+        try {
+          const productData = await getProduct(id);
+          console.log('获取到产品数据:', productData);
+          
+          if (!productData) {
+            console.error('产品不存在，ID:', id);
+            setError('抱歉，找不到该产品');
+            setIsLoading(false);
+            return;
+          }
+          
+          // 产品数据获取成功
+          setProduct(productData);
+          
+          // 获取产品类目
+          try {
+            if (productData.category) {
+              const categoryData = await getCategory(productData.category);
+              setCategory(categoryData);
+            }
+          } catch (categoryError) {
+            console.error('获取类别信息失败:', categoryError);
+            // 不会中断主流程
+          }
+          
+          // 获取相关产品
+          try {
+            const allProducts = await getAllProducts();
+            // 过滤出相同类别的产品，但排除当前产品
+            const related = allProducts
+              .filter(p => p.category === productData.category && (p.id !== id && p._id !== id))
+              .slice(0, 4); // 最多显示4个相关产品
+            setRelatedProducts(related);
+          } catch (relatedError) {
+            console.error('获取相关产品失败:', relatedError);
+            // 不会中断主流程
+          }
+        } catch (productError) {
+          console.error('获取产品数据失败:', productError);
+          setError('加载产品时出错，请刷新页面重试');
           setIsLoading(false);
           return;
-        }
-        
-        // 产品数据获取成功
-        setProduct(productData);
-        
-        // 获取产品类目
-        try {
-          if (productData.category) {
-            const categoryData = await getCategory(productData.category);
-            setCategory(categoryData);
-          }
-        } catch (categoryError) {
-          console.error('获取类别信息失败:', categoryError);
-          // 不会中断主流程
-        }
-        
-        // 获取相关产品
-        try {
-          const allProducts = await getAllProducts();
-          // 过滤出相同类别的产品，但排除当前产品
-          const related = allProducts
-            .filter(p => p.category === productData.category && p.id !== id)
-            .slice(0, 4); // 最多显示4个相关产品
-          setRelatedProducts(related);
-        } catch (relatedError) {
-          console.error('获取相关产品失败:', relatedError);
-          // 不会中断主流程
         }
         
         setIsLoading(false);

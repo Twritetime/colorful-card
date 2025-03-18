@@ -26,11 +26,20 @@ export const getProduct = async (id: string): Promise<Product | null> => {
 
   try {
     console.log(`正在获取产品，ID: ${id}`);
-    const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
+    // 确保ID是有效的字符串格式
+    const safeId = encodeURIComponent(id.toString().trim());
+    
+    const response = await fetch(`${API_BASE_URL}/api/products/${safeId}`);
     
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`获取产品失败: ${response.status} ${response.statusText}`, errorText);
+      
+      if (response.status === 404) {
+        console.error(`产品不存在，ID: ${id}`);
+        return null;
+      }
+      
       throw new Error(response.statusText || `HTTP错误 ${response.status}`);
     }
     
@@ -41,6 +50,12 @@ export const getProduct = async (id: string): Promise<Product | null> => {
       throw new Error(result.message || '获取产品失败');
     }
     
+    if (!result.data) {
+      console.error('API返回空数据，产品可能不存在:', id);
+      return null;
+    }
+    
+    console.log('成功获取产品数据:', id);
     return result.data;
   } catch (error) {
     console.error('获取产品出错:', error);
