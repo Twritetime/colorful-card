@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // 需要保护的路由
 const protectedRoutes = ['/dashboard', '/dashboard/products'];
@@ -27,9 +27,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 添加必要的headers
-  const headers = new Headers(request.headers);
-  
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-url', request.url);
+
   // 对于API请求添加CORS headers
   if (path.startsWith('/api/')) {
     return NextResponse.next({
@@ -42,13 +42,22 @@ export async function middleware(request: NextRequest) {
     });
   }
 
+  // 对于RSC请求的处理
+  if (request.headers.get('RSC') === '1') {
+    return NextResponse.next({
+      headers: requestHeaders,
+    });
+  }
+
   // 对于dashboard路由进行处理
   if (path.startsWith('/dashboard')) {
     // 这里可以添加认证逻辑
     return NextResponse.next();
   }
 
-  return NextResponse.next();
+  return NextResponse.next({
+    headers: requestHeaders,
+  });
 }
 
 // 匹配的路由
@@ -56,5 +65,6 @@ export const config = {
   matcher: [
     '/api/:path*',
     '/dashboard/:path*',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }; 
