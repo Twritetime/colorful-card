@@ -18,6 +18,7 @@ export default function ProductImageUploader({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   const [localImages, setLocalImages] = useState<string[]>(images);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     setLocalImages(images);
@@ -27,6 +28,9 @@ export default function ProductImageUploader({
     async (acceptedFiles: File[]) => {
       try {
         setIsUploading(true);
+        setUploadError(null);
+        
+        console.log('准备上传文件:', acceptedFiles.map(f => f.name).join(', '));
         
         // 创建临时预览
         const tempUrls = acceptedFiles.map(file => URL.createObjectURL(file));
@@ -38,18 +42,26 @@ export default function ProductImageUploader({
           try {
             setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 0 }));
             
+            // 添加时间戳确保文件名唯一
+            const timestamp = new Date().getTime();
+            const uniqueFilename = `${timestamp}-${file.name}`;
+            
+            console.log(`开始上传文件: ${uniqueFilename}`);
+            
             // 上传到Vercel Blob Storage
-            const filename = `${Date.now()}-${file.name}`;
-            const response = await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, {
+            const response = await fetch(`/api/upload?filename=${encodeURIComponent(uniqueFilename)}`, {
               method: 'POST',
               body: file,
             });
             
             if (!response.ok) {
-              throw new Error('上传失败');
+              const errorData = await response.json();
+              console.error('上传响应错误:', errorData);
+              throw new Error(`上传失败: ${errorData.error || response.statusText}`);
             }
             
             const blob = await response.json();
+            console.log('上传成功, 返回数据:', blob);
             const url = blob.url;
             
             setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 100 }));
@@ -63,11 +75,19 @@ export default function ProductImageUploader({
         
         const results = await Promise.all(uploadPromises);
         
+        // 检查是否所有上传都失败
+        const allFailed = results.every(r => r.serverUrl === null);
+        if (allFailed && acceptedFiles.length > 0) {
+          setUploadError('所有图片上传失败，请重试');
+        }
+        
         // 更新图片列表
         const finalImages = localImages.map(img => {
           const match = results.find(r => r.tempUrl === img);
           return match ? (match.serverUrl || img) : img;
         }).filter(url => url !== null && !url.startsWith('blob:'));
+        
+        console.log('成功上传图片URL:', finalImages);
         
         setLocalImages(finalImages);
         onChange(finalImages);
@@ -76,6 +96,7 @@ export default function ProductImageUploader({
         tempUrls.forEach(url => URL.revokeObjectURL(url));
       } catch (error) {
         console.error('处理图片上传失败:', error);
+        setUploadError(error instanceof Error ? error.message : '上传过程中发生错误');
       } finally {
         setIsUploading(false);
         setUploadProgress({});
@@ -93,9 +114,10 @@ export default function ProductImageUploader({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': []
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
     },
     multiple,
+    maxSize: 4 * 1024 * 1024, // 限制文件大小为4MB
     disabled: isUploading
   });
 
@@ -115,9 +137,17 @@ export default function ProductImageUploader({
         ) : (
           <p className="text-gray-500">
             {multiple ? '点击或拖放图片到这里上传（可多选）' : '点击或拖放一张图片到这里上传'}
+            <br />
+            <span className="text-xs text-gray-400">支持JPG、PNG、GIF、WEBP格式，单文件最大4MB</span>
           </p>
         )}
       </div>
+
+      {uploadError && (
+        <div className="mt-2 text-sm text-red-500">
+          {uploadError}
+        </div>
+      )}
 
       {localImages.length > 0 && (
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

@@ -12,18 +12,28 @@ type ImageDropzoneProps = {
 
 export default function ImageDropzone({ images, onChange, multiple = true }: ImageDropzoneProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       try {
         setIsUploading(true);
+        setUploadError(null);
+        
+        console.log('准备上传文件:', acceptedFiles.map(f => f.name).join(', '));
         
         // 上传所有文件
         const uploadedUrls = await Promise.all(
           acceptedFiles.map(async (file) => {
             try {
+              // 添加时间戳确保文件名唯一
+              const timestamp = new Date().getTime();
+              const uniqueFilename = `${timestamp}-${file.name}`;
+              
+              console.log(`开始上传文件: ${uniqueFilename}`);
+              
               const response = await fetch(
-                `/api/upload?filename=${encodeURIComponent(file.name)}`,
+                `/api/upload?filename=${encodeURIComponent(uniqueFilename)}`,
                 {
                   method: 'POST',
                   body: file,
@@ -31,10 +41,13 @@ export default function ImageDropzone({ images, onChange, multiple = true }: Ima
               );
 
               if (!response.ok) {
-                throw new Error('上传失败');
+                const errorData = await response.json();
+                console.error('上传响应错误:', errorData);
+                throw new Error(`上传失败: ${errorData.error || response.statusText}`);
               }
 
               const blob = await response.json();
+              console.log('上传成功, 返回数据:', blob);
               return blob.url;
             } catch (error) {
               console.error('上传图片失败:', error);
@@ -46,6 +59,13 @@ export default function ImageDropzone({ images, onChange, multiple = true }: Ima
         // 过滤掉上传失败的图片
         const validUrls = uploadedUrls.filter((url): url is string => url !== null);
         
+        if (validUrls.length === 0 && acceptedFiles.length > 0) {
+          setUploadError('所有图片上传失败，请重试');
+          return;
+        }
+        
+        console.log('成功上传图片URL:', validUrls);
+        
         // 更新图片列表
         if (multiple) {
           onChange([...images, ...validUrls]);
@@ -54,6 +74,7 @@ export default function ImageDropzone({ images, onChange, multiple = true }: Ima
         }
       } catch (error) {
         console.error('处理图片上传失败:', error);
+        setUploadError(error instanceof Error ? error.message : '上传过程中发生错误');
       } finally {
         setIsUploading(false);
       }
@@ -68,9 +89,11 @@ export default function ImageDropzone({ images, onChange, multiple = true }: Ima
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': []
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
     },
-    multiple
+    multiple,
+    maxSize: 4 * 1024 * 1024, // 限制文件大小为4MB
+    disabled: isUploading
   });
 
   return (
@@ -89,9 +112,17 @@ export default function ImageDropzone({ images, onChange, multiple = true }: Ima
         ) : (
           <p className="text-gray-500">
             {multiple ? '点击或拖放图片到这里上传' : '点击或拖放一张图片到这里上传'}
+            <br />
+            <span className="text-xs text-gray-400">支持JPG、PNG、GIF、WEBP格式，单文件最大4MB</span>
           </p>
         )}
       </div>
+
+      {uploadError && (
+        <div className="mt-2 text-sm text-red-500">
+          {uploadError}
+        </div>
+      )}
 
       {images.length > 0 && (
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">

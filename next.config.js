@@ -13,6 +13,10 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.blob.vercel-storage.com',
       }
     ],
     dangerouslyAllowSVG: true,
