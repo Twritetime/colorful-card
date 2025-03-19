@@ -10,6 +10,8 @@ import { getAllCategories, Category } from '@/lib/categoryService';
 import { CategoryIcon } from '@/components/icons/CategoryIcons';
 import Image from 'next/image';
 import useSWR from 'swr';
+import { Plus } from 'lucide-react';
+import ClientImage from '@/components/ClientImage';
 
 // 数据获取器
 const fetcher = (url: string) => fetch(url).then(res => res.json()).then(data => data.data);
@@ -120,72 +122,50 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">产品管理</h1>
-      <div className="flex justify-between mb-6">
-        <button
-          onClick={handleAddProduct}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold">产品管理</h1>
+        <Link
+          href="/dashboard/products/new"
+          className="bg-primary text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-primary/90"
         >
-          <PlusIcon className="w-5 h-5 mr-2" />
+          <Plus size={20} />
           添加产品
-        </button>
-        <button
-          onClick={handleRefreshData}
-          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md ml-2"
-        >
-          刷新数据
-        </button>
+        </Link>
       </div>
 
-      {products && products.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product: Product) => (
-            <div
-              key={product.id || product._id}
-              className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => handleClickProduct(product.id || product._id)}
-            >
-              <div className="h-48 bg-gray-200 relative">
-                {product.images && product.images.length > 0 ? (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    无图片
-                  </div>
-                )}
-                <div className="absolute top-2 right-2">
-                  <span className={`px-2 py-1 text-xs rounded-full ${product.published ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}>
-                    {product.published ? '已发布' : '草稿'}
-                  </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.map((product) => (
+          <Link
+            key={product._id}
+            href={`/dashboard/products/${product._id}`}
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+          >
+            <div className="aspect-square relative">
+              {product.images && product.images.length > 0 ? (
+                <ClientImage
+                  src={product.images[0]}
+                  alt={product.name}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                  <span className="text-gray-400">暂无图片</span>
                 </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center mb-2">
-                  <CategoryIcon categorySlug={categories[product.category]?.slug || 'default'} className="w-5 h-5 mr-2" />
-                  <span className="text-sm text-gray-600">{getCategoryName(product.category)}</span>
-                </div>
-                <h3 className="font-medium mb-1">{product.name}</h3>
-                <p className="text-gray-700 text-sm line-clamp-2 mb-2">{product.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-blue-600">¥{product.price.toFixed(2)}</span>
-                  <span className="text-sm text-gray-500">库存: {product.stock}</span>
-                </div>
+              )}
+            </div>
+            <div className="p-4">
+              <h2 className="text-lg font-semibold mb-2">{product.name}</h2>
+              <p className="text-gray-600 text-sm mb-2">{product.description}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-primary font-semibold">¥{product.price}</span>
+                <span className="text-sm text-gray-500">库存: {product.stock}</span>
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-10">
-          <p className="text-gray-500">暂无产品，点击"添加产品"按钮创建新产品。</p>
-        </div>
-      )}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 } 
