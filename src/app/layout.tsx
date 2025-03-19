@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -14,24 +14,24 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "彩色卡片 - 专业定制各类卡片",
-  description: "提供专业的卡片定制服务，包括会员卡、名片、贺卡等各类卡片的设计和印刷。",
+  title: "Colorful Card - Professional Card & Gift Solutions",
+  description: "Colorful Card Co., Ltd. - Leading professional card, gift and packaging solution manufacturer for the global B2B market",
   keywords: ["cards", "gift cards", "packaging", "B2B", "business cards", "greeting cards", "colorful card"],
 };
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <LanguageProvider>
-              <div className="min-h-screen flex flex-col">
-                <Navbar />
+              <div className="flex flex-col min-h-screen">
+                <Header />
                 <main className="flex-grow">{children}</main>
                 <Footer />
               </div>
