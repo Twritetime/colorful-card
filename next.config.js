@@ -16,7 +16,6 @@ const nextConfig = {
       }
     ],
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
     domains: ['via.placeholder.com', 'images.unsplash.com', 'localhost', 'placehold.co'],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
@@ -26,7 +25,6 @@ const nextConfig = {
     loader: 'default',
     disableStaticImages: false,
     unoptimized: process.env.NODE_ENV === 'development',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   webpack: (config) => {
     config.module.rules.push({

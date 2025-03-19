@@ -119,17 +119,15 @@ export default function ProductsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product, index) => (
+          {filteredProducts.map((product) => (
             <Link href={`/products/${product._id || product.id}`} key={product._id || product.id}>
               <div className="group rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
                 <div className="flex flex-col h-full">
-                  <div className="relative aspect-square overflow-hidden rounded-lg">
+                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-4">
                     <ClientImage
-                      src={product.images[0] || "https://placehold.co/600x400?text=暂无图片"}
+                      src={product.images[0] || "/placeholder.jpg"}
                       alt={product.name}
                       fill
-                      priority={index < 4}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       style={{ objectFit: 'cover' }}
                     />
                   </div>

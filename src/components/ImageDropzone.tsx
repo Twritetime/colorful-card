@@ -2,7 +2,6 @@
 
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { uploadImage } from '@/lib/imageService';
 import ClientImage from './ClientImage';
 
 type ImageDropzoneProps = {
@@ -23,9 +22,20 @@ export default function ImageDropzone({ images, onChange, multiple = true }: Ima
         const uploadedUrls = await Promise.all(
           acceptedFiles.map(async (file) => {
             try {
-              // 上传图片到服务器
-              const url = await uploadImage(file);
-              return url;
+              const response = await fetch(
+                `/api/upload?filename=${encodeURIComponent(file.name)}`,
+                {
+                  method: 'POST',
+                  body: file,
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error('上传失败');
+              }
+
+              const blob = await response.json();
+              return blob.url;
             } catch (error) {
               console.error('上传图片失败:', error);
               return null;

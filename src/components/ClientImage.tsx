@@ -2,19 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
-interface ClientImageProps {
+type ClientImageProps = {
   src: string;
   alt: string;
   width?: number;
   height?: number;
   fill?: boolean;
   className?: string;
-  priority?: boolean;
-  sizes?: string;
   style?: React.CSSProperties;
-}
+};
 
 export default function ClientImage({
   src,
@@ -22,51 +19,107 @@ export default function ClientImage({
   width,
   height,
   fill = false,
-  className,
-  priority = false,
-  sizes,
-  style,
+  className = '',
+  style = {},
 }: ClientImageProps) {
+  const [imageSrc, setImageSrc] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 处理图片源
-  let imageSrc = src;
-  if (src.startsWith('/api/images/')) {
-    imageSrc = `${process.env.NEXT_PUBLIC_API_URL}${src}`;
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // 检查是否为blob URL
+        if (src.startsWith('blob:')) {
+          setImageSrc(src);
+          return;
+        }
+
+        // 检查是否为API URL
+        if (src.startsWith('/api/images/')) {
+          // 确保URL格式正确
+          const imageId = src.split('/api/images/')[1];
+          if (imageId) {
+            setImageSrc(`/api/images/${imageId}`);
+            return;
+          }
+        }
+
+        // 检查是否为完整URL
+        if (src.startsWith('http://') || src.startsWith('https://')) {
+          setImageSrc(src);
+          return;
+        }
+
+        // 默认使用传入的src
+        setImageSrc(src);
+      } catch (err) {
+        console.error('加载图片失败:', err);
+        setError('加载失败');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadImage();
+  }, [src]);
+
+  const containerStyle = {
+    width: width ? `${width}px` : '100%',
+    height: height ? `${height}px` : '100%',
+    ...style,
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        className={`bg-gray-200 animate-pulse ${className}`}
+        style={containerStyle}
+      />
+    );
   }
 
-  // 如果是占位图片，使用默认尺寸
-  if (src.includes('placehold.co')) {
-    width = width || 600;
-    height = height || 400;
+  if (error) {
+    return (
+      <div
+        className={`bg-gray-100 flex items-center justify-center text-gray-500 ${className}`}
+        style={containerStyle}
+      >
+        <span className="text-sm">图片加载失败</span>
+      </div>
+    );
+  }
+
+  const imageProps = {
+    src: imageSrc,
+    alt,
+    onError: () => setError('加载失败'),
+    unoptimized: true,
+    loading: "lazy" as const,
+    className: `${className} ${fill ? 'object-cover' : ''}`.trim(),
+  };
+
+  if (fill) {
+    return (
+      <div className="relative w-full h-full" style={style}>
+        <Image
+          {...imageProps}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+      </div>
+    );
   }
 
   return (
-    <div className={cn('relative overflow-hidden', className)}>
-      {error ? (
-        <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
-          图片加载失败
-        </div>
-      ) : (
-        <Image
-          src={imageSrc}
-          alt={alt}
-          width={fill ? undefined : width}
-          height={fill ? undefined : height}
-          fill={fill}
-          className={cn(
-            'duration-700 ease-in-out',
-            isLoading ? 'scale-110 blur-2xl grayscale' : 'scale-100 blur-0 grayscale-0',
-            className
-          )}
-          priority={priority}
-          sizes={sizes}
-          style={style}
-          onLoadingComplete={() => setIsLoading(false)}
-          onError={() => setError(true)}
-        />
-      )}
-    </div>
+    <Image
+      {...imageProps}
+      width={width || 300}
+      height={height || 300}
+      style={style}
+    />
   );
 } 
