@@ -2,7 +2,6 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { uploadImage } from '@/lib/imageService';
 import ClientImage from './ClientImage';
 
 type ProductImageUploaderProps = {
@@ -39,8 +38,19 @@ export default function ProductImageUploader({
           try {
             setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 0 }));
             
-            // 上传图片
-            const url = await uploadImage(file);
+            // 上传到Vercel Blob Storage
+            const filename = `${Date.now()}-${file.name}`;
+            const response = await fetch(`/api/upload?filename=${encodeURIComponent(filename)}`, {
+              method: 'POST',
+              body: file,
+            });
+            
+            if (!response.ok) {
+              throw new Error('上传失败');
+            }
+            
+            const blob = await response.json();
+            const url = blob.url;
             
             setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 100 }));
             return { tempUrl: tempUrls[index], serverUrl: url };
