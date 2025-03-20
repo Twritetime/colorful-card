@@ -10,18 +10,19 @@ type ProductImageUploaderProps = {
   multiple?: boolean;
 };
 
-export default function ProductImageUploader({ 
-  images, 
-  onChange, 
-  multiple = true 
+export default function ProductImageUploader({
+  images,
+  onChange,
+  multiple = true
 }: ProductImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
   const [localImages, setLocalImages] = useState<string[]>(images);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // 确保localImages与外部images同步
   useEffect(() => {
-    setLocalImages(images);
+    const validImages = images.filter(url => url && url.includes('blob.vercel-storage.com'));
+    setLocalImages(validImages);
   }, [images]);
 
   const onDrop = useCallback(
@@ -29,77 +30,66 @@ export default function ProductImageUploader({
       try {
         setIsUploading(true);
         setUploadError(null);
-        
+
         console.log('准备上传文件:', acceptedFiles.map(f => f.name).join(', '));
-        
-        // 创建临时预览
-        const tempUrls = acceptedFiles.map(file => URL.createObjectURL(file));
-        const updatedImages = multiple ? [...localImages, ...tempUrls] : tempUrls;
-        setLocalImages(updatedImages);
-        
+
         // 上传文件
-        const uploadPromises = acceptedFiles.map(async (file, index) => {
+        const uploadPromises = acceptedFiles.map(async (file) => {
           try {
-            setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 0 }));
-            
             // 添加时间戳确保文件名唯一
             const timestamp = new Date().getTime();
             const uniqueFilename = `${timestamp}-${file.name}`;
-            
+
             console.log(`开始上传文件: ${uniqueFilename}`);
-            
+
             // 上传到Vercel Blob Storage
             const response = await fetch(`/api/upload?filename=${encodeURIComponent(uniqueFilename)}`, {
               method: 'POST',
               body: file,
             });
-            
+
             if (!response.ok) {
               const errorData = await response.json();
               console.error('上传响应错误:', errorData);
               throw new Error(`上传失败: ${errorData.error || response.statusText}`);
             }
-            
+
             const blob = await response.json();
             console.log('上传成功, 返回数据:', blob);
-            const url = blob.url;
-            
-            setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: 100 }));
-            return { tempUrl: tempUrls[index], serverUrl: url };
+
+            // 验证返回的URL是否为Blob Storage URL
+            if (!blob.url || !blob.url.includes('blob.vercel-storage.com')) {
+              throw new Error('上传成功但返回的URL无效');
+            }
+
+            return blob.url;
           } catch (error) {
             console.error('上传图片失败:', error);
-            setUploadProgress(prev => ({ ...prev, [tempUrls[index]]: -1 }));
-            return { tempUrl: tempUrls[index], serverUrl: null };
+            return null;
           }
         });
-        
-        const results = await Promise.all(uploadPromises);
-        
-        // 检查是否所有上传都失败
-        const allFailed = results.every(r => r.serverUrl === null);
-        if (allFailed && acceptedFiles.length > 0) {
+
+        const uploadedUrls = await Promise.all(uploadPromises);
+        const validUrls = uploadedUrls.filter((url): url is string => 
+          url !== null && url.includes('blob.vercel-storage.com')
+        );
+
+        if (validUrls.length === 0 && acceptedFiles.length > 0) {
           setUploadError('所有图片上传失败，请重试');
+          return;
         }
-        
+
         // 更新图片列表
-        const finalImages = localImages.map(img => {
-          const match = results.find(r => r.tempUrl === img);
-          return match ? (match.serverUrl || img) : img;
-        }).filter(url => url !== null && !url.startsWith('blob:'));
-        
-        console.log('成功上传图片URL:', finalImages);
-        
-        setLocalImages(finalImages);
-        onChange(finalImages);
-        
-        // 清理临时URL
-        tempUrls.forEach(url => URL.revokeObjectURL(url));
+        const newImages = multiple ? [...localImages, ...validUrls] : validUrls;
+        console.log('最终图片URL列表:', newImages);
+
+        setLocalImages(newImages);
+        onChange(newImages);
       } catch (error) {
         console.error('处理图片上传失败:', error);
         setUploadError(error instanceof Error ? error.message : '上传过程中发生错误');
       } finally {
         setIsUploading(false);
-        setUploadProgress({});
       }
     },
     [localImages, onChange, multiple]
@@ -153,23 +143,14 @@ export default function ProductImageUploader({
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {localImages.map((src, index) => (
             <div key={src} className="relative group">
-              <div className="aspect-square relative w-full h-[200px] overflow-hidden rounded-md bg-gray-100">
+              <div className="aspect-square relative w-full">
                 <ClientImage
                   src={src}
-                  alt={`上传的图片 ${index + 1}`}
+                  alt={`上传的图片${index + 1}`}
                   fill
                   priority={index < 4}
                   className="object-cover"
                 />
-                {uploadProgress[src] !== undefined && uploadProgress[src] !== 100 && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    {uploadProgress[src] === -1 ? (
-                      <span className="text-white text-sm">上传失败</span>
-                    ) : (
-                      <span className="text-white text-sm">{uploadProgress[src]}%</span>
-                    )}
-                  </div>
-                )}
               </div>
               <button
                 type="button"
@@ -188,8 +169,8 @@ export default function ProductImageUploader({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>

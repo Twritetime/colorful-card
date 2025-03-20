@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 
-type ClientImageProps = {
+interface ClientImageProps {
   src: string;
   alt: string;
   width?: number;
   height?: number;
   fill?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
   priority?: boolean;
-};
+  className?: string;
+}
 
 export default function ClientImage({
   src,
@@ -20,124 +19,94 @@ export default function ClientImage({
   width,
   height,
   fill = false,
-  className = '',
-  style = {},
   priority = false,
+  className = '',
 }: ClientImageProps) {
-  const [imageSrc, setImageSrc] = useState<string>('');
+  const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadImage = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        // 如果src为空或undefined，使用placeholder
-        if (!src) {
-          setImageSrc('/placeholder.jpg');
-          return;
-        }
-
-        // 检查是否为blob URL
-        if (src.startsWith('blob:')) {
-          setImageSrc(src);
-          return;
-        }
-
-        // 检查是否为API URL
-        if (src.startsWith('/api/images/')) {
-          // 确保URL格式正确
-          const imageId = src.split('/api/images/')[1];
-          if (imageId) {
-            setImageSrc(`/api/images/${imageId}`);
-            return;
-          }
-        }
-
-        // Vercel Blob Storage URL处理
-        if (src.includes('blob.vercel-storage.com')) {
-          setImageSrc(src);
-          return;
-        }
-
-        // 检查是否为完整URL
-        if (src.startsWith('http://') || src.startsWith('https://')) {
-          setImageSrc(src);
-          return;
-        }
-
-        // 默认使用传入的src
-        setImageSrc(src);
-      } catch (err) {
-        console.error('加载图片失败:', err, '图片路径:', src);
-        setError('加载失败');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadImage();
-  }, [src]);
-
-  const containerStyle = {
-    width: width ? `${width}px` : '100%',
-    height: height ? `${height}px` : '100%',
-    ...style,
+  // 验证URL是否为有效的Blob Storage URL
+  const isBlobUrl = (url: string) => {
+    return url.includes('blob.vercel-storage.com');
   };
 
-  if (isLoading) {
-    return (
-      <div
-        className={`bg-gray-200 animate-pulse ${className}`}
-        style={containerStyle}
-      />
-    );
-  }
-
-  if (error || !imageSrc) {
-    return (
-      <div
-        className={`bg-gray-100 flex items-center justify-center text-gray-500 ${className}`}
-        style={containerStyle}
-      >
-        <span className="text-sm">图片加载失败</span>
-      </div>
-    );
-  }
-
-  const imageProps = {
-    src: imageSrc,
-    alt,
-    onError: () => {
-      console.error('图片加载错误:', imageSrc);
-      setError('加载失败');
-    },
-    unoptimized: true,
-    loading: priority ? "eager" as const : "lazy" as const,
-    priority,
-    className: `${className} ${fill ? 'object-cover' : ''}`.trim(),
+  // 获取占位图URL的辅助函数
+  const getPlaceholderUrl = (text: string = '图片加载失败') => {
+    const imageWidth = fill ? 400 : (width || 400);
+    const imageHeight = fill ? 400 : (height || 400);
+    return `/api/placeholder?width=${imageWidth}&height=${imageHeight}&text=${encodeURIComponent(text)}`;
   };
 
-  if (fill) {
-    return (
-      <div className="relative w-full h-full" style={style}>
-        <Image
-          {...imageProps}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-      </div>
-    );
-  }
+  // 检查src是否已经是占位图URL
+  const isPlaceholderUrl = (url: string) => {
+    return url.startsWith('/api/placeholder');
+  };
+
+  const handleError = () => {
+    // 如果当前src已经是占位图但仍然失败，避免无限循环
+    if (!isPlaceholderUrl(src)) {
+      console.error('图片加载错误，使用占位图替代:', src);
+      setError(true);
+    } else {
+      console.error('占位图也加载失败:', src);
+    }
+    setIsLoading(false);
+  };
+
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  // 确定最终要显示的图片URL
+  const imageUrl = (() => {
+    if (!src || src === '') {
+      return getPlaceholderUrl(alt);
+    }
+    if (error) {
+      return getPlaceholderUrl(alt);
+    }
+    if (isBlobUrl(src)) {
+      return src;
+    }
+    // 如果不是Blob URL，检查是否是完整的URL
+    if (src.startsWith('http://') || src.startsWith('https://')) {
+      return src;
+    }
+    // 如果是相对路径，确保它是有效的
+    if (src.startsWith('/')) {
+      return src;
+    }
+    // 其他情况使用占位图
+    return getPlaceholderUrl(alt);
+  })();
+
+  // 为fill模式添加必要的样式
+  const containerClassName = `relative ${fill ? 'w-full h-full' : ''} ${className}`;
+  const imageClassName = `
+    duration-700 ease-in-out
+    ${isLoading ? 'scale-105 blur-lg' : 'scale-100 blur-0'}
+    ${fill ? 'object-cover' : ''}
+  `;
 
   return (
-    <Image
-      {...imageProps}
-      width={width || 300}
-      height={height || 300}
-      style={style}
-    />
+    <div className={containerClassName} style={fill ? { position: 'absolute', inset: 0 } : undefined}>
+      <Image
+        src={imageUrl}
+        alt={alt}
+        width={fill ? undefined : (width || 400)}
+        height={fill ? undefined : (height || 400)}
+        fill={fill}
+        priority={priority}
+        className={imageClassName}
+        onError={handleError}
+        onLoad={handleLoad}
+        sizes={fill ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" : undefined}
+      />
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
+    </div>
   );
 } 

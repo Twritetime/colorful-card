@@ -7,6 +7,7 @@ import { Product, getAllProducts } from "@/lib/productService";
 import { Category, getAllCategories } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ClientImage from "@/components/ClientImage";
+import { formatCurrency } from "@/lib/utils";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -60,6 +61,13 @@ export default function ProductsPage() {
   const getCategoryName = (categoryId: string) => {
     const category = categories.find(c => c._id === categoryId || c.id === categoryId);
     return category ? category.name : categoryId;
+  };
+
+  // 获取占位图URL的辅助函数
+  const getPlaceholderUrl = (text: string = '产品图片') => {
+    // 确保文本被正确编码，并添加语言支持
+    const displayText = language === 'en' ? 'Product Image' : text;
+    return `/api/placeholder?width=600&height=600&text=${encodeURIComponent(displayText)}`;
   };
 
   return (
@@ -118,34 +126,21 @@ export default function ProductsPage() {
           <p className="text-lg text-muted-foreground">{t('products.loading')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
           {filteredProducts.map((product) => (
-            <Link href={`/products/${product._id || product.id}`} key={product._id || product.id}>
-              <div className="group rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
-                <div className="flex flex-col h-full">
-                  <div className="relative aspect-square rounded-2xl overflow-hidden mb-4">
-                    <ClientImage
-                      src={product.images[0] || "/placeholder.jpg"}
-                      alt={product.name}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </div>
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg">{product.name}</h3>
-                      <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
-                        {getCategoryName(product.category)}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground text-sm line-clamp-2 mb-3">
-                      {product.description}
-                    </p>
-                    <div className="flex justify-between items-center mt-auto">
-                      <span className="font-medium text-primary">¥{product.price.toFixed(2)}</span>
-                      <span className="text-xs text-muted-foreground">{t('products.stock')}: {product.stock}</span>
-                    </div>
-                  </div>
+            <Link key={product._id} href={`/products/${product._id}`}>
+              <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="aspect-square relative w-full">
+                  <ClientImage 
+                    src={product.images?.[0] || ''}
+                    alt={product.name}
+                    className="object-cover"
+                    fill
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-medium text-gray-900 truncate">{product.name}</h3>
+                  <p className="mt-1 font-semibold text-primary">{formatCurrency(product.price)}</p>
                 </div>
               </div>
             </Link>

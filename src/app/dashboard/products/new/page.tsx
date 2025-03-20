@@ -85,27 +85,30 @@ export default function NewProductPage() {
     setIsSubmitting(true);
     
     try {
-      // 转换数据类型
+      // 准备提交的数据
       const productData = {
-        ...formData,
-        price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
-        // 如果没有上传图片，使用默认图片
-        images: formData.images.length > 0 ? formData.images : ['https://placehold.co/600x400?text=产品图片']
+        name: formData.name,
+        description: formData.description,
+        price: Number(formData.price),
+        category: formData.category,
+        stock: Number(formData.stock),
+        published: formData.published,
+        // 使用已上传的图片URL，如果没有图片则使用占位图API
+        images: formData.images.length > 0 
+          ? formData.images 
+          : [`/api/placeholder?width=600&height=400&text=${encodeURIComponent('产品图片')}`]
       };
-      
-      // 创建产品
-      const newProduct = await createProduct(productData);
-      
-      if (!newProduct) {
-        throw new Error('创建产品失败');
+
+      console.log('正在保存产品数据:', productData);
+      const result = await createProduct(productData);
+
+      if (result) {
+        router.push('/dashboard/products');
+      } else {
+        console.error('产品创建失败');
       }
-      
-      // 重定向到产品列表页
-      router.push('/dashboard/products');
     } catch (error) {
-      console.error('创建产品失败:', error);
-      alert('创建产品失败，请重试');
+      console.error('保存产品时出错:', error);
     } finally {
       setIsSubmitting(false);
     }

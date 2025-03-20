@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { use } from "react";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Product, getProduct, getAllProducts } from "@/lib/productService";
 import { Category, getAllCategories } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ClientImage from "@/components/ClientImage";
+import { formatCurrency } from '@/lib/utils';
 
 interface ProductPageProps {
   params: {
@@ -16,16 +17,16 @@ interface ProductPageProps {
   };
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
-  const unwrappedParams = use(params);
-  const { id } = unwrappedParams;
+export default function ProductPage() {
+  const { id } = useParams();
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [activeImage, setActiveImage] = useState<string>('');
 
   // 获取产品数据
   useEffect(() => {
@@ -82,6 +83,11 @@ export default function ProductPage({ params }: ProductPageProps) {
         } catch (relatedError) {
           console.error('获取相关产品失败:', relatedError);
           // 不会中断主流程
+        }
+        
+        // 设置第一张图片为活动图片
+        if (productData && productData.images && productData.images.length > 0) {
+          setActiveImage(productData.images[0]);
         }
         
         setIsLoading(false);
@@ -165,7 +171,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         <div className="md:flex-1 mb-8 md:mb-0">
           <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
             <ClientImage
-              src={product.images[0] || "/placeholder.jpg"}
+              src={activeImage || product.images[0] || "/placeholder.jpg"}
               alt={product.name}
               fill
               style={{ objectFit: 'cover' }}
@@ -178,8 +184,9 @@ export default function ProductPage({ params }: ProductPageProps) {
               {product.images.map((image, idx) => (
                 <div 
                   key={idx}
-                  className="aspect-square relative rounded overflow-hidden cursor-pointer"
-                  onClick={() => setActiveImage(idx)}
+                  className={`aspect-square relative rounded overflow-hidden cursor-pointer 
+                    ${activeImage === image ? 'ring-2 ring-primary' : 'hover:opacity-75'}`}
+                  onClick={() => setActiveImage(image)}
                 >
                   <ClientImage
                     src={image}
@@ -203,7 +210,7 @@ export default function ProductPage({ params }: ProductPageProps) {
             )}
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
             <div className="text-xl font-bold text-blue-600 mb-4">
-              ¥{product.price.toFixed(2)}
+              ¥{formatCurrency(product.price)}
             </div>
             <div className="flex items-center mb-4">
               <div className="mr-4">
