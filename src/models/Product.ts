@@ -9,6 +9,8 @@ export interface IProduct extends Document {
   stock: number;
   published: boolean;
   images: string[];
+  videos: string[];
+  content?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +24,8 @@ const ProductSchema: Schema = new Schema({
   stock: { type: Number, required: true, default: 0 },
   published: { type: Boolean, default: false },
   images: { type: [String], default: [] },
+  videos: { type: [String], default: [] },
+  content: { type: String },
   // 自动设置创建和更新时间
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

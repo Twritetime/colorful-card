@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EnvelopeIcon, PhoneIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getAllProducts } from '@/lib/productService';
+import { getAllCategories } from '@/lib/categoryService';
 
 export default function ContactPage() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,6 +20,9 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -56,6 +61,25 @@ export default function ContactPage() {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          getAllProducts(),
+          getAllCategories()
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -305,21 +329,11 @@ export default function ContactPage() {
                     <option value="">
                       {language === 'en' ? "-- Select a product --" : "-- 选择产品 --"}
                     </option>
-                    <option value="business-cards">
-                      {language === 'en' ? "Business Cards" : "名片"}
-                    </option>
-                    <option value="greeting-cards">
-                      {language === 'en' ? "Greeting Cards" : "贺卡"}
-                    </option>
-                    <option value="gift-cards">
-                      {language === 'en' ? "Gift Cards" : "礼品卡"}
-                    </option>
-                    <option value="packaging">
-                      {language === 'en' ? "Packaging Solutions" : "包装解决方案"}
-                    </option>
-                    <option value="other">
-                      {language === 'en' ? "Other" : "其他"}
-                    </option>
+                    {products.map((product) => (
+                      <option key={product._id} value={product._id}>
+                        {product.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 

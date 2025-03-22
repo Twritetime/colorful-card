@@ -5,17 +5,32 @@ import { useRouter } from 'next/navigation';
 import { createProduct } from '@/lib/productService';
 import { getAllCategories, Category } from '@/lib/categoryService';
 import ProductImageUploader from '@/components/ProductImageUploader';
+import RichTextEditor from '@/components/RichTextEditor'
+
+interface FormData {
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  stock: string;
+  published: boolean;
+  images: string[];
+  videos: string[];
+  content: string;
+}
 
 export default function NewProductPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
     price: '',
     category: '',
     stock: '',
     published: true,
-    images: [] as string[]
+    images: [],
+    videos: [],
+    content: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -93,22 +108,28 @@ export default function NewProductPage() {
         category: formData.category,
         stock: Number(formData.stock),
         published: formData.published,
-        // 使用已上传的图片URL，如果没有图片则使用占位图API
         images: formData.images.length > 0 
           ? formData.images 
-          : [`/api/placeholder?width=600&height=400&text=${encodeURIComponent('产品图片')}`]
+          : [`/api/placeholder?width=600&height=400&text=${encodeURIComponent('产品图片')}`],
+        videos: formData.videos,
+        content: formData.content
       };
 
-      console.log('正在保存产品数据:', productData);
+      console.log('提交的产品数据:', productData);
+      console.log('视频数据:', formData.videos);
+
       const result = await createProduct(productData);
+      console.log('创建产品结果:', result);
 
       if (result) {
         router.push('/dashboard/products');
       } else {
         console.error('产品创建失败');
+        alert('产品创建失败，请重试');
       }
     } catch (error) {
       console.error('保存产品时出错:', error);
+      alert('保存产品时出错，请重试');
     } finally {
       setIsSubmitting(false);
     }
@@ -195,29 +216,52 @@ export default function NewProductPage() {
           </div>
         </div>
         
-        <div className="mb-6">
-          <label htmlFor="description" className="block mb-2 text-sm font-medium">
+        <div className="space-y-2">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             产品描述
           </label>
-          <textarea
-            id="description"
-            name="description"
-            rows={4}
-            className="w-full px-3 py-2 border rounded-md"
-            placeholder="输入产品描述"
-            value={formData.description}
-            onChange={handleChange}
-          ></textarea>
+          <RichTextEditor
+            content={formData.description}
+            onChange={(content) => setFormData({ ...formData, description: content })}
+            placeholder="在此输入产品描述..."
+          />
         </div>
         
-        <div className="col-span-2">
-          <label className="block mb-2 text-sm font-medium">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
             产品图片
           </label>
-          <ProductImageUploader 
+          <ProductImageUploader
             images={formData.images}
-            onChange={handleImagesChange}
-            multiple={true}
+            onChange={(urls) => setFormData({ ...formData, images: urls })}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            产品视频
+          </label>
+          <ProductImageUploader
+            images={formData.videos}
+            onChange={(urls) => {
+              console.log('视频上传完成，URLs:', urls);
+              setFormData(prev => ({
+                ...prev,
+                videos: urls
+              }));
+            }}
+            type="video"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
+            产品详细内容
+          </label>
+          <RichTextEditor
+            content={formData.content}
+            onChange={(content) => setFormData({ ...formData, content })}
+            placeholder="在此输入产品详细内容..."
           />
         </div>
         

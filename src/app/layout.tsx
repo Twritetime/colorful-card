@@ -6,6 +6,8 @@ import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import ContactButton from '@/components/ContactButton';
+import { cn } from "@/lib/utils";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
+      <body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <LanguageProvider>
@@ -34,6 +36,7 @@ export default function RootLayout({
                 <Header />
                 <main className="flex-grow">{children}</main>
                 <Footer />
+                <ContactButton />
               </div>
             </LanguageProvider>
           </AuthProvider>

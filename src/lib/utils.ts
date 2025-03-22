@@ -8,16 +8,11 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * 格式化货币显示
  * @param amount 金额
- * @param currency 货币代码，默认为CNY
+ * @param currency 货币代码，默认为USD
  * @returns 格式化后的货币字符串
  */
-export const formatCurrency = (amount: number, currency: string = 'CNY'): string => {
-  return new Intl.NumberFormat('zh-CN', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(amount);
+export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+  return amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
 /**

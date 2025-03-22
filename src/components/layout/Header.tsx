@@ -11,7 +11,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Header() {
-  const { t, language, setLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: session } = useSession();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,6 +19,7 @@ export default function Header() {
   const navigation = [
     { name: t('nav.home'), href: "/" },
     { name: t('nav.products'), href: "/products" },
+    { name: "Blog", href: "/blog" },
     { name: t('nav.about'), href: "/about" },
     { name: t('nav.contact'), href: "/contact" },
   ];

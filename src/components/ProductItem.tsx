@@ -23,7 +23,7 @@ export default function ProductItem({ product }: { product: any }) {
         <div className="p-4">
           <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
           <p className="mt-1 text-lg font-semibold text-primary">
-            {formatCurrency(product.price)}
+            ${formatCurrency(product.price)}
           </p>
         </div>
       </Link>

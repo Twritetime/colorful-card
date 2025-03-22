@@ -9,6 +9,8 @@ export interface Product {
   stock: number;
   published: boolean;
   images: string[];
+  videos: string[];
+  content?: string; // 富文本内容
   createdAt: string;
   updatedAt: string;
 }
@@ -67,25 +69,27 @@ export const getAllProducts = async (): Promise<Product[]> => {
 };
 
 // 创建新产品
-export const createProduct = async (productData: Omit<Product, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Product | null> => {
+export const createProduct = async (productData: Omit<Product, '_id' | 'id' | 'createdAt' | 'updatedAt'>): Promise<Product | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/products`, {
+    const response = await fetch('/api/products', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(productData),
+      body: JSON.stringify({
+        ...productData,
+        videos: productData.videos || [],
+        content: productData.content || ''
+      }),
     });
-    
+
     if (!response.ok) {
-      console.error('创建产品失败:', response.statusText);
-      return null;
+      throw new Error('创建产品失败');
     }
-    
-    const result = await response.json();
-    return result.success ? result.data : null;
+
+    return response.json();
   } catch (error) {
-    console.error('创建产品出错:', error);
+    console.error('创建产品时出错:', error);
     return null;
   }
 };

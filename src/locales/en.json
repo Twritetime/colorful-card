@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "blog": "Blog"
+  },
+  "blog": {
+    "title": "Blog",
+    "searchPlaceholder": "Search articles...",
+    "noResults": "No articles found",
+    "readMore": "Read More"
+  },
+  "contact": {
+    "button": "Contact Us"
+  }
+} 

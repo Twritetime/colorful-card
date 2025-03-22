@@ -10,6 +10,8 @@ import { Category, getAllCategories } from "@/lib/categoryService";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ClientImage from "@/components/ClientImage";
 import { formatCurrency } from '@/lib/utils';
+import DOMPurify from 'isomorphic-dompurify'
+import CustomVideoPlayer from '@/components/CustomVideoPlayer'
 
 interface ProductPageProps {
   params: {
@@ -27,6 +29,8 @@ export default function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const [activeImage, setActiveImage] = useState<string>('');
+  const [showVideo, setShowVideo] = useState(false);
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string>('');
 
   // 获取产品数据
   useEffect(() => {
@@ -56,37 +60,42 @@ export default function ProductPage() {
         }
         
         // 产品数据获取成功
+        console.log('获取到的完整产品数据:', productData);
+        
+        // 检查视频数据
+        if (productData.videos) {
+          console.log('原始视频数据:', productData.videos);
+          // 确保videos是数组
+          const videosArray = Array.isArray(productData.videos) ? productData.videos : [];
+          console.log('处理后的视频数组:', videosArray);
+          if (videosArray.length > 0) {
+            console.log('第一个视频URL:', videosArray[0]);
+            setActiveVideoUrl(videosArray[0]);
+          }
+          // 更新产品数据中的videos字段
+          productData.videos = videosArray;
+        } else {
+          console.log('产品没有视频数据');
+          productData.videos = [];
+        }
+
         setProduct(productData);
         
-        // 获取产品类目 - 使用getAllCategories替代getCategory
-        try {
-          if (productData.category) {
+        // 获取产品类目
+        if (productData.category) {
+          try {
             const categories = await getAllCategories();
             const categoryData = categories.find(c => c._id === productData.category || c.id === productData.category);
             if (categoryData) {
               setCategory(categoryData);
             }
+          } catch (categoryError) {
+            console.error('获取类别信息失败:', categoryError);
           }
-        } catch (categoryError) {
-          console.error('获取类别信息失败:', categoryError);
-          // 不会中断主流程
-        }
-        
-        // 获取相关产品
-        try {
-          const allProducts = await getAllProducts();
-          // 过滤出相同类别的产品，但排除当前产品
-          const related = allProducts
-            .filter(p => p.category === productData.category && (p._id || p.id) !== id)
-            .slice(0, 4); // 最多显示4个相关产品
-          setRelatedProducts(related);
-        } catch (relatedError) {
-          console.error('获取相关产品失败:', relatedError);
-          // 不会中断主流程
         }
         
         // 设置第一张图片为活动图片
-        if (productData && productData.images && productData.images.length > 0) {
+        if (productData.images && productData.images.length > 0) {
           setActiveImage(productData.images[0]);
         }
         
@@ -121,11 +130,18 @@ export default function ProductPage() {
   const getProductSpecs = (product: Product) => {
     return {
       [t('product.type')]: getCategoryName(),
-      [t('product.price')]: `¥${product.price.toFixed(2)}`,
+      [t('product.price')]: `$${product.price.toFixed(2)}`,
       [t('products.stock')]: product.stock.toString(),
       [t('product.createdAt')]: new Date(product.createdAt).toLocaleDateString(),
       [t('product.updatedAt')]: new Date(product.updatedAt).toLocaleDateString(),
     };
+  };
+
+  // 处理视频播放
+  const handlePlayVideo = (videoUrl: string) => {
+    console.log('点击播放视频:', videoUrl);
+    setActiveVideoUrl(videoUrl);
+    setShowVideo(true);
   };
 
   if (isLoading) {
@@ -161,6 +177,31 @@ export default function ProductPage() {
 
   return (
     <div className="container mx-auto py-6 px-4">
+      {/* 视频播放模态框 */}
+      {showVideo && activeVideoUrl && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowVideo(false)}
+        >
+          <div 
+            className="relative w-full max-w-4xl bg-black rounded-lg overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowVideo(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="aspect-video">
+              <CustomVideoPlayer src={activeVideoUrl} className="w-full h-full" />
+            </div>
+          </div>
+        </div>
+      )}
+
       <Link href="/products" className="inline-flex items-center text-blue-600 hover:underline mb-6">
         <ArrowLeftIcon className="h-4 w-4 mr-1" />
         {t('product.back')}
@@ -209,11 +250,37 @@ export default function ProductPage() {
               </span>
             )}
             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
-            <div className="text-xl font-bold text-blue-600 mb-4">
-              ¥{formatCurrency(product.price)}
+            <div className="text-2xl font-bold text-primary mb-4">
+              ${formatCurrency(product.price)}
             </div>
+
+            {/* 视频按钮 */}
+            {product?.videos && product.videos.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-2">{t('product.videos')}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {product.videos.map((video, index) => {
+                    console.log('渲染视频按钮:', video);
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => handlePlayVideo(video)}
+                        className="flex items-center justify-center p-4 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                      >
+                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="font-medium">Video {index + 1}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center mb-4">
-              <div className="mr-4">
+              <div>
                 <span className="text-sm font-medium">{t('product.stock.status')}: </span>
                 {product.stock > 0 ? (
                   <span className="text-green-600">{t('product.stock.available')}</span>
@@ -221,12 +288,13 @@ export default function ProductPage() {
                   <span className="text-red-600">{t('product.stock.unavailable')}</span>
                 )}
               </div>
-              <div>
-                <span className="text-sm font-medium">ID: </span>
-                <span className="font-mono text-xs bg-gray-100 p-1 rounded">{product.id || product._id}</span>
-              </div>
             </div>
-            <p className="text-gray-600 mb-6">{product.description}</p>
+            <div 
+              className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none mb-6 prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600 hover:prose-a:text-blue-500"
+              dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(product.description) 
+              }}
+            />
           </div>
           
           <div className="space-y-4">
@@ -245,6 +313,19 @@ export default function ProductPage() {
         </div>
       </div>
       
+      {/* 产品详细内容 */}
+      {product.content && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-4">{t('product.details')}</h3>
+          <div 
+            className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600 hover:prose-a:text-blue-500"
+            dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(product.content) 
+            }}
+          />
+        </div>
+      )}
+      
       {/* 产品详情 */}
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">{t('product.specs')}</h2>
@@ -255,7 +336,7 @@ export default function ProductPage() {
           </div>
           <div className="border-b pb-2">
             <span className="font-medium">{t('product.price')}: </span>
-            <span>¥{product.price.toFixed(2)}</span>
+            <span className="text-primary">${formatCurrency(product.price)}</span>
           </div>
           <div className="border-b pb-2">
             <span className="font-medium">{t('product.createdAt')}: </span>
@@ -290,7 +371,7 @@ export default function ProductPage() {
                   <div className="p-4">
                     <h3 className="font-semibold">{relatedProduct.name}</h3>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="font-medium text-primary">¥{relatedProduct.price.toFixed(2)}</span>
+                      <span className="text-lg font-medium text-primary">${formatCurrency(relatedProduct.price)}</span>
                       <span className="text-xs text-muted-foreground">{t('products.stock')}: {relatedProduct.stock}</span>
                     </div>
                   </div>
