@@ -47,4 +47,61 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { urlId: string } }
+) {
+  console.log('Updating blog post:', params.urlId);
+  
+  if (!params.urlId) {
+    return NextResponse.json(
+      { error: 'urlId is required' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const post = await request.json();
+    console.log('Update data:', post);
+
+    const db = await connectToDatabase();
+    console.log('Database connected');
+    
+    const collection = db.collection('blog');
+    console.log('Using collection: blog');
+
+    const result = await collection.findOneAndUpdate(
+      { urlId: params.urlId },
+      { 
+        $set: { 
+          ...post,
+          updatedAt: new Date()
+        } 
+      },
+      { returnDocument: 'after' }
+    );
+
+    if (!result) {
+      console.log('Blog post not found for update:', params.urlId);
+      return NextResponse.json(
+        { error: 'Blog post not found', urlId: params.urlId },
+        { status: 404 }
+      );
+    }
+
+    console.log('Blog post updated successfully');
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Error updating blog post:', error);
+    return NextResponse.json(
+      { 
+        error: 'Failed to update blog post', 
+        details: error instanceof Error ? error.message : String(error),
+        urlId: params.urlId
+      },
+      { status: 500 }
+    );
+  }
 } 
