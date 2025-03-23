@@ -19,22 +19,38 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   });
   
   if (!response.ok) {
-    throw new Error('Failed to fetch blog posts');
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to fetch blog posts');
   }
   const data = await response.json();
   return Array.isArray(data) ? data.filter(post => post.published) : [];
 }
 
 export async function getBlogPostByUrlId(urlId: string): Promise<BlogPost> {
+  if (!urlId) {
+    throw new Error('urlId is required');
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  console.log('Fetching blog post with urlId:', urlId);
+  console.log('API URL:', `${baseUrl}/api/blog/${urlId}`);
+
   const response = await fetch(`${baseUrl}/api/blog/${urlId}`, {
     cache: 'no-store', // 禁用缓存以获取最新数据
     next: { revalidate: 0 }, // 禁用ISR缓存
   });
   
+  const data = await response.json();
+  
   if (!response.ok) {
-    const data = await response.json();
+    console.error('Error response:', data);
     throw new Error(data.error || 'Failed to fetch blog post');
   }
-  return response.json();
+
+  if (!data || !data.title) {
+    console.error('Invalid blog post data:', data);
+    throw new Error('Blog post not found');
+  }
+
+  return data;
 } 
