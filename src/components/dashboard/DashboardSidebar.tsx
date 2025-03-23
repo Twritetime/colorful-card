@@ -14,6 +14,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   TagIcon,
+  DocumentTextIcon
 } from "@heroicons/react/24/outline";
 import { signOut } from "next-auth/react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,6 +23,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
   { name: "Products", href: "/dashboard/products", icon: CubeIcon },
   { name: "Categories", href: "/dashboard/categories", icon: TagIcon },
+  { name: "Blog", href: "/dashboard/blog", icon: DocumentTextIcon },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingBagIcon },
   { name: "Inquiries", href: "/dashboard/inquiries", icon: ChatBubbleLeftRightIcon },
   { name: "Customers", href: "/dashboard/customers", icon: UsersIcon },
@@ -39,6 +41,7 @@ export default function DashboardSidebar() {
       case "Dashboard": return t('nav.dashboard');
       case "Products": return "产品管理";
       case "Categories": return "类目管理";
+      case "Blog": return "博客管理";
       case "Orders": return "订单管理";
       case "Inquiries": return "询盘管理";
       case "Customers": return "客户管理";

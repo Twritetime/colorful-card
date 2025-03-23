@@ -6,13 +6,17 @@ export interface Product {
   description: string;
   price: number;
   category: string;
+  categoryId?: string;
   stock: number;
+  minOrder?: number;
+  featured?: boolean;
   published: boolean;
   images: string[];
-  videos: string[];
+  videos?: string[];
   content?: string; // 富文本内容
-  createdAt: string;
-  updatedAt: string;
+  specs?: Record<string, string>;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // API基础URL

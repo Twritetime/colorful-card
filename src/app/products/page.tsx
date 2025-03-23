@@ -29,7 +29,9 @@ export default function ProductsPage() {
         
         // 获取类目数据（异步）
         const categoryData = await getAllCategories();
-        setCategories(categoryData);
+        if (categoryData && categoryData.length > 0) {
+          setCategories(categoryData);
+        }
       } catch (error) {
         console.error("获取数据失败:", error);
       } finally {
@@ -40,8 +42,8 @@ export default function ProductsPage() {
     // 立即获取一次数据
     fetchData();
 
-    // 设置定期刷新
-    const intervalId = setInterval(fetchData, 5000); // 每5秒刷新一次
+    // 设置定期刷新（改为30秒一次）
+    const intervalId = setInterval(fetchData, 30000);
 
     // 清理函数
     return () => {
@@ -49,18 +51,24 @@ export default function ProductsPage() {
     };
   }, []);
 
-  // 过滤产品
+  // 过滤产品（添加空值检查）
   const filteredProducts = products.filter(
     (product) =>
-      (selectedCategory === "all" || product.category === selectedCategory) &&
-      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      product && // 确保产品对象存在
+      (selectedCategory === "all" || 
+       (product.categoryId && product.categoryId === selectedCategory) || 
+       (product.category && product.category === selectedCategory)) &&
+      (product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       product.description?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // 获取类目名称
+  // 获取类目名称（添加空值检查）
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find(c => c._id === categoryId || c.id === categoryId);
-    return category ? category.name : categoryId;
+    if (!categoryId) return '';
+    const category = categories.find(c => 
+      (c._id && c._id === categoryId) || (c.id && c.id === categoryId)
+    );
+    return category?.name || '';
   };
 
   // 获取占位图URL的辅助函数
@@ -128,7 +136,7 @@ export default function ProductsPage() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
           {filteredProducts.map((product) => (
-            <Link key={product._id} href={`/products/${product._id}`}>
+            <Link key={product._id || product.id} href={`/products/${product._id || product.id}`}>
               <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="aspect-square relative w-full">
                   <ClientImage 

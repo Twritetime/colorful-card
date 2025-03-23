@@ -13,119 +13,103 @@ export interface Category {
   updatedAt?: string;
 }
 
-// API基础URL
-const API_BASE_URL = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_API_BASE_URL || '';
+import { API_BASE_URL } from '@/config/constants';
 
-// 获取单个类目
-export const getCategory = async (id: string): Promise<Category | null> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/categories/${id}`);
-    
-    if (!response.ok) {
-      console.error('获取类目失败:', response.statusText);
-      return null;
+// 重试函数
+const fetchWithRetry = async (url: string, options: RequestInit = {}, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response;
+    } catch (error) {
+      if (i === retries - 1) throw error; // 如果是最后一次尝试，则抛出错误
+      console.warn(`获取数据失败，正在重试 (${i + 1}/${retries})...`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // 指数退避
     }
-    
-    const result = await response.json();
-    return result.success ? result.data : null;
+  }
+  throw new Error('所有重试都失败了');
+};
+
+// 获取所有类别
+export const getCategories = async () => {
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/categories`);
+    const data = await response.json();
+    return data.success ? data.data : [];
   } catch (error) {
-    console.error('获取类目出错:', error);
+    console.error('获取类别失败:', error);
+    return []; // 返回空数组而不是抛出错误
+  }
+};
+
+// 保持向后兼容
+export const getAllCategories = getCategories;
+
+// 获取单个类别
+export const getCategory = async (id: string) => {
+  if (!id) return null;
+  
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/categories/${id}`);
+    const data = await response.json();
+    return data.success ? data.data : null;
+  } catch (error) {
+    console.error('获取类别失败:', error);
     return null;
   }
 };
 
-// 获取所有类目
-export const getAllCategories = async (): Promise<Category[]> => {
+// 创建类别
+export const createCategory = async (category: any) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/categories`);
-    
-    if (!response.ok) {
-      console.error('获取所有类目失败:', response.statusText);
-      // 如果API尚未实现，返回初始数据
-      return initialCategories;
-    }
-    
-    const result = await response.json();
-    return result.success ? result.data : [];
-  } catch (error) {
-    console.error('获取所有类目出错:', error);
-    // 在API调用失败时，使用初始数据作为备用
-    return initialCategories;
-  }
-};
-
-// 创建新类目
-export const createCategory = async (categoryData: Omit<Category, "id" | "_id" | "createdAt" | "updatedAt">): Promise<Category | null> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/categories`, {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(categoryData),
+      body: JSON.stringify(category),
     });
-    
-    if (!response.ok) {
-      console.error('创建类目失败:', response.statusText);
-      return null;
-    }
-    
-    const result = await response.json();
-    return result.success ? result.data : null;
+    const data = await response.json();
+    return data.success ? data.data : null;
   } catch (error) {
-    console.error('创建类目出错:', error);
+    console.error('创建类别失败:', error);
     return null;
   }
 };
 
-// 更新类目
-export const updateCategory = async (id: string, categoryData: Partial<Category>): Promise<Category | null> => {
+// 更新类别
+export const updateCategory = async (id: string, category: any) => {
+  if (!id) return null;
+  
   try {
-    // 确保数据中不包含_id字段，避免MongoDB更新错误
-    const { _id, id: dataId, ...updateData } = categoryData as any;
-    
-    console.log('准备更新类别，ID:', id);
-    console.log('更新数据:', JSON.stringify(updateData));
-    
-    const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/categories/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(updateData),
+      body: JSON.stringify(category),
     });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('更新类目失败:', response.status, response.statusText, errorText);
-      throw new Error(`更新类目失败: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-    
-    const result = await response.json();
-    console.log('类别更新成功:', result);
-    return result.success ? result.data : null;
+    const data = await response.json();
+    return data.success ? data.data : null;
   } catch (error) {
-    console.error('更新类目出错:', error);
-    throw error; // 将错误向上传递，而不是仅返回null
+    console.error('更新类别失败:', error);
+    return null;
   }
 };
 
-// 删除类目
-export const deleteCategory = async (id: string): Promise<boolean> => {
+// 删除类别
+export const deleteCategory = async (id: string) => {
+  if (!id) return false;
+  
   try {
-    const response = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+    const response = await fetchWithRetry(`${API_BASE_URL}/api/categories/${id}`, {
       method: 'DELETE',
     });
-    
-    if (!response.ok) {
-      console.error('删除类目失败:', response.statusText);
-      return false;
-    }
-    
-    const result = await response.json();
-    return result.success;
+    const data = await response.json();
+    return data.success;
   } catch (error) {
-    console.error('删除类目出错:', error);
+    console.error('删除类别失败:', error);
     return false;
   }
 };

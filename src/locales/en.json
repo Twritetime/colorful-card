@@ -1,14 +1,26 @@
 {
+  "contact": {
+    "button": "Contact Us"
+  },
   "nav": {
     "blog": "Blog"
   },
+  "dashboard": {
+    "blog": "Blog Management"
+  },
   "blog": {
     "title": "Blog",
-    "searchPlaceholder": "Search articles...",
-    "noResults": "No articles found",
-    "readMore": "Read More"
-  },
-  "contact": {
-    "button": "Contact Us"
+    "loading": "Loading...",
+    "notFound": "Blog post not found",
+    "backToList": "Back to Blog",
+    "management": "Blog Management",
+    "createNew": "Create New Post",
+    "deleteConfirm": "Are you sure you want to delete this post?",
+    "published": "Published",
+    "draft": "Draft",
+    "author": "Author",
+    "date": "Date",
+    "status": "Status",
+    "actions": "Actions"
   }
 } 

@@ -70,3 +70,56 @@ body {
     --foreground: #ededed;
   }
 }
+
+/* ReactQuill 暗模式适配 */
+.dark .quill-wrapper .ql-toolbar,
+.dark .quill-wrapper .ql-container {
+  border-color: rgb(51, 51, 51) !important;
+  background-color: rgb(18, 18, 18);
+  color: #fff;
+}
+
+.dark .quill-wrapper .ql-editor {
+  color: #fff;
+}
+
+.dark .quill-wrapper .ql-picker {
+  color: #fff;
+}
+
+.dark .quill-wrapper .ql-stroke {
+  stroke: #fff;
+}
+
+.dark .quill-wrapper .ql-fill {
+  fill: #fff;
+}
+
+.dark .quill-wrapper .ql-picker-options {
+  background-color: rgb(18, 18, 18);
+  border-color: rgb(51, 51, 51) !important;
+}
+
+.dark .quill-wrapper .ql-tooltip {
+  background-color: rgb(18, 18, 18);
+  border-color: rgb(51, 51, 51) !important;
+  color: #fff;
+}
+
+/* 修复ReactQuill在容器内的高度 */
+.quill-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+}
+
+.quill-wrapper .quill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.quill-wrapper .ql-container {
+  flex: 1;
+  overflow: auto;
+}

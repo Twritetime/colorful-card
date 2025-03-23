@@ -20,10 +20,32 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          getAllProducts(),
+          getAllCategories()
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
+        setFilteredProducts(productsData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -62,24 +84,16 @@ export default function ContactPage() {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          getAllProducts(),
-          getAllCategories()
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // 处理类别变化
+  const handleCategoryChange = (e) => {
+    const categoryId = e.target.value;
+    setSelectedCategory(categoryId);
+    if (categoryId) {
+      setFilteredProducts(products.filter(product => product.category === categoryId));
+    } else {
+      setFilteredProducts(products);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-16">
@@ -319,22 +333,36 @@ export default function ContactPage() {
                   <label htmlFor="product" className="block text-sm font-medium">
                     {language === 'en' ? "Product Interest" : "感兴趣的产品"}
                   </label>
-                  <select
-                    id="product"
-                    name="product"
-                    value={formData.product}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                  >
-                    <option value="">
-                      {language === 'en' ? "-- Select a product --" : "-- 选择产品 --"}
-                    </option>
-                    {products.map((product) => (
-                      <option key={product._id} value={product._id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="space-y-4">
+                    <select
+                      id="category"
+                      name="category"
+                      value={selectedCategory}
+                      onChange={handleCategoryChange}
+                      className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    >
+                      <option value="">{t('contact.allCategories')}</option>
+                      {categories.map((category) => (
+                        <option key={category._id} value={category._id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      id="product"
+                      name="product"
+                      value={formData.product}
+                      onChange={handleChange}
+                      className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    >
+                      <option value="">{t('contact.selectProduct')}</option>
+                      {filteredProducts.map((product) => (
+                        <option key={product._id} value={product._id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 
                 <div>

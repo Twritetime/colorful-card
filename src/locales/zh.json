@@ -1,14 +1,53 @@
 {
+  "contact": {
+    "button": "联系我们"
+  },
   "nav": {
     "blog": "博客"
   },
-  "blog": {
-    "title": "博客文章",
-    "searchPlaceholder": "搜索文章...",
-    "noResults": "未找到相关文章",
-    "readMore": "阅读更多"
+  "dashboard": {
+    "blog": "博客管理"
   },
-  "contact": {
-    "button": "联系我们"
+  "general": {
+    "title": "标题"
+  },
+  "blog": {
+    "title": "博客",
+    "loading": "加载中...",
+    "notFound": "未找到博客文章",
+    "postNotFound": "博客文章不存在",
+    "backToList": "返回博客列表",
+    "backToBlog": "返回博客",
+    "management": "博客管理",
+    "createNew": "创建新文章",
+    "deleteConfirm": "确定要删除这篇文章吗？",
+    "published": "已发布",
+    "draft": "草稿",
+    "author": "作者",
+    "date": "日期",
+    "status": "状态",
+    "actions": "操作",
+    "redirecting": "正在重定向...",
+    "tags": "标签",
+    "edit": "编辑",
+    "delete": "删除",
+    "view": "查看",
+    "save": "保存",
+    "cancel": "取消",
+    "title_placeholder": "文章标题",
+    "content_placeholder": "在此输入文章内容...",
+    "excerpt_placeholder": "文章摘要",
+    "slug_placeholder": "文章固定链接",
+    "coverImage_placeholder": "封面图片URL",
+    "author_placeholder": "作者名称",
+    "tags_placeholder": "标签（用逗号分隔）",
+    "successCreate": "文章创建成功",
+    "successUpdate": "文章更新成功",
+    "successDelete": "文章删除成功",
+    "errorCreate": "创建文章失败",
+    "errorUpdate": "更新文章失败",
+    "errorDelete": "删除文章失败",
+    "publish": "发布",
+    "unpublish": "取消发布"
   }
 } 

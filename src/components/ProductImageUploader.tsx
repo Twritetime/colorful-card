@@ -7,14 +7,16 @@ import { Upload, X } from 'lucide-react';
 
 interface ProductImageUploaderProps {
   images: string[];
-  onChange: (urls: string[]) => void;
+  onImagesChange?: (urls: string[]) => void;
   type?: 'image' | 'video';
+  maxImages?: number;
 }
 
 export default function ProductImageUploader({
-  images,
-  onChange,
-  type = 'image'
+  images = [],
+  onImagesChange,
+  type = 'image',
+  maxImages = 10
 }: ProductImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -25,8 +27,34 @@ export default function ProductImageUploader({
     console.log('Current images/videos:', images);
   }, [type, images]);
 
+  // 处理文件上传完成
+  const handleUploadComplete = useCallback((urls: string[]) => {
+    console.log(`所有${type}上传完成:`, urls);
+    
+    // 更新图片/视频列表
+    const newUrls = [...images, ...urls];
+    console.log(`更新${type}列表:`, newUrls);
+    
+    // 调用回调函数
+    try {
+      if (typeof onImagesChange === 'function') {
+        onImagesChange(newUrls);
+      } else {
+        console.warn('警告: onImagesChange 不是一个函数或未提供');
+      }
+    } catch (error) {
+      console.error(`${type}上传错误:`, error);
+    }
+  }, [images, onImagesChange, type]);
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     try {
+      // 检查文件数量限制
+      if (images.length + acceptedFiles.length > maxImages) {
+        alert(`最多只能上传${maxImages}个${type === 'video' ? '视频' : '图片'}`);
+        return;
+      }
+      
       setIsUploading(true);
       setUploadProgress(0);
       
@@ -87,12 +115,7 @@ export default function ProductImageUploader({
       });
 
       const urls = await Promise.all(uploadPromises);
-      console.log(`所有${type}上传完成:`, urls);
-
-      // 更新图片/视频列表
-      const newUrls = [...images, ...urls];
-      console.log(`更新${type}列表:`, newUrls);
-      onChange(newUrls);
+      handleUploadComplete(urls);
       setUploadProgress(100);
     } catch (error) {
       console.error(`${type}上传错误:`, error);
@@ -100,7 +123,7 @@ export default function ProductImageUploader({
     } finally {
       setIsUploading(false);
     }
-  }, [images, onChange, type]);
+  }, [images, maxImages, type, handleUploadComplete]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -115,7 +138,11 @@ export default function ProductImageUploader({
     const newFiles = [...images];
     newFiles.splice(index, 1);
     console.log(`删除后的${type}列表:`, newFiles);
-    onChange(newFiles);
+    if (typeof onImagesChange === 'function') {
+      onImagesChange(newFiles);
+    } else {
+      console.warn('警告: onImagesChange 不是一个函数或未提供');
+    }
   };
 
   return (

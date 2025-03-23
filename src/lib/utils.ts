@@ -17,16 +17,24 @@ export const formatCurrency = (amount: number, currency: string = 'USD'): string
 
 /**
  * 格式化日期
- * @param date 日期对象或日期字符串
+ * @param dateString 日期字符串
+ * @param locale 区域设置
  * @returns 格式化后的日期字符串
  */
-export const formatDate = (date: Date | string): string => {
-  const d = new Date(date);
-  return d.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+export const formatDate = (dateString: string | Date, locale: string = 'zh-CN') => {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(date);
+  } catch (error) {
+    console.error('日期格式化错误:', error);
+    return '';
+  }
 };
 
 /**
