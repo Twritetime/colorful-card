@@ -9,8 +9,19 @@ interface Props {
 }
 
 export default async function BlogPostPage({ params }: Props) {
+  if (!params.urlId) {
+    console.error('urlId is required');
+    return notFound();
+  }
+
   try {
+    console.log('Fetching blog post for urlId:', params.urlId);
     const post = await getBlogPostByUrlId(params.urlId);
+
+    if (!post || !post.published) {
+      console.error('Blog post not found or not published:', params.urlId);
+      return notFound();
+    }
 
     return (
       <div className="container mx-auto px-4 py-8">
