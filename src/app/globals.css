@@ -55,6 +55,30 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+}
+
+/* 明亮模式背景样式 */
+body:before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: 
+    linear-gradient(135deg, rgba(247, 249, 255, 0.7) 0%, rgba(255, 255, 255, 0.9) 100%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h6v6H0zm12 12h6v6h-6zm12 12h6v6h-6zm12 12h6v6h-6zm12 12h6v6h-6z' fill='%23E0E8F7' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.8;
+}
+
+/* 暗黑模式背景样式 */
+.dark body:before {
+  background: 
+    linear-gradient(135deg, rgba(22, 28, 45, 0.8) 0%, rgba(10, 10, 20, 0.95) 100%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h6v6H0zm12 12h6v6h-6zm12 12h6v6h-6zm12 12h6v6h-6zm12 12h6v6h-6z' fill='%23293452' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.9;
 }
 
 .theme-inline {
@@ -122,4 +146,96 @@ body {
 .quill-wrapper .ql-container {
   flex: 1;
   overflow: auto;
+}
+
+/* 博客内容样式增强 */
+.blog-content {
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.blog-content h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border));
+  padding-bottom: 0.5rem;
+}
+
+.blog-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: hsl(var(--foreground));
+}
+
+.blog-content p {
+  margin-bottom: 1.25rem;
+}
+
+.blog-content img {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  max-width: 100%;
+  height: auto;
+}
+
+.blog-content a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+.blog-content ul, .blog-content ol {
+  margin: 1rem 0 1.5rem 1.5rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+}
+
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.blog-content th, .blog-content td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.blog-content th {
+  background-color: hsl(var(--muted));
+  font-weight: 600;
+}
+
+.dark .blog-content th {
+  background-color: hsl(var(--muted));
+}
+
+/* 博客卡片悬停效果 */
+.blog-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .blog-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
 }
